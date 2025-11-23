@@ -8,10 +8,6 @@ out
 dist
 build
 
-# Prisma
-prisma/dev.db
-prisma/dev.db-journal
-
 # Logs
 *.log
 npm-debug.log*
