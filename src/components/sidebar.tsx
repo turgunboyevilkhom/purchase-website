@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  BarChart2,
   ShoppingCart,
   RotateCcw,
   TrendingDown,
@@ -31,16 +30,10 @@ interface SidebarProps {
 
 const menuItems = [
   {
-    id: "dashboard",
-    label: "Dashboard",
-    icon: BarChart2,
-    href: "/",
-  },
-  {
     id: "kirim",
     label: "Kirim hujjatlari",
     icon: ShoppingCart,
-    href: "/yetib-kelgan",
+    href: "/",
   },
   {
     id: "qaytarilgan",

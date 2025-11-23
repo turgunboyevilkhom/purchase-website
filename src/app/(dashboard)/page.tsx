@@ -1,20 +1,29 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import {
-  Package,
-  DollarSign,
-  TrendingUp,
-  AlertTriangle,
-  Calendar,
+  Plus,
+  Search,
+  Filter,
+  Eye,
+  Edit,
+  ChevronLeft,
+  ChevronRight,
   Download,
-  RefreshCw,
 } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import {
   Select,
   SelectContent,
@@ -23,98 +32,174 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-  Legend,
-  LineChart,
-  Line,
-} from "recharts"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
 
-// Sample data for charts
-const inventoryTrendData = [
-  { month: "Yan", value: 45000000 },
-  { month: "Fev", value: 52000000 },
-  { month: "Mar", value: 48000000 },
-  { month: "Apr", value: 61000000 },
-  { month: "May", value: 55000000 },
-  { month: "Iyn", value: 67000000 },
+// Sample data
+const documents = [
+  {
+    id: 1,
+    docNumber: "DOC-2025-001",
+    date: "2025-01-15",
+    supplier: "Coca-Cola HBC",
+    warehouse: "Asosiy ombor",
+    paymentType: "Naqd",
+    totalAmount: 15500000,
+    itemsCount: 24,
+    status: "Tasdiqlangan",
+    products: [
+      { name: "Coca-Cola 1L", quantity: 100, price: 12000, total: 1200000 },
+      { name: "Fanta 0.5L", quantity: 200, price: 8500, total: 1700000 },
+      { name: "Sprite 1.5L", quantity: 150, price: 15000, total: 2250000 },
+    ],
+  },
+  {
+    id: 2,
+    docNumber: "DOC-2025-002",
+    date: "2025-01-14",
+    supplier: "Elma Group",
+    warehouse: "Asosiy ombor",
+    paymentType: "Bank",
+    totalAmount: 8750000,
+    itemsCount: 15,
+    status: "Qoralama",
+    products: [
+      { name: "Elma Sok 1L", quantity: 50, price: 14000, total: 700000 },
+      { name: "Elma Nektar 0.5L", quantity: 80, price: 9000, total: 720000 },
+    ],
+  },
+  {
+    id: 3,
+    docNumber: "DOC-2025-003",
+    date: "2025-01-13",
+    supplier: "Nestle Uzbekistan",
+    warehouse: "Ikkinchi ombor",
+    paymentType: "Naqd",
+    totalAmount: 22300000,
+    itemsCount: 32,
+    status: "Tasdiqlangan",
+    products: [
+      { name: "Nestle Shokolad", quantity: 300, price: 25000, total: 7500000 },
+      { name: "Nestle Kofe", quantity: 200, price: 45000, total: 9000000 },
+    ],
+  },
+  {
+    id: 4,
+    docNumber: "DOC-2025-004",
+    date: "2025-01-12",
+    supplier: "P&G Distribution",
+    warehouse: "Asosiy ombor",
+    paymentType: "Bank",
+    totalAmount: 12100000,
+    itemsCount: 18,
+    status: "Kutilmoqda",
+    products: [
+      { name: "Ariel 3kg", quantity: 100, price: 85000, total: 8500000 },
+      { name: "Tide 2kg", quantity: 60, price: 60000, total: 3600000 },
+    ],
+  },
+  {
+    id: 5,
+    docNumber: "DOC-2025-005",
+    date: "2025-01-11",
+    supplier: "Unilever",
+    warehouse: "Asosiy ombor",
+    paymentType: "Naqd",
+    totalAmount: 9800000,
+    itemsCount: 12,
+    status: "Bekor qilingan",
+    products: [
+      { name: "Lipton Tea 100g", quantity: 200, price: 25000, total: 5000000 },
+      { name: "Dove Soap", quantity: 150, price: 32000, total: 4800000 },
+    ],
+  },
 ]
 
-const inventoryHealthData = [
-  { name: "Normal", value: 65, color: "#99C61E" },
-  { name: "Kam qolgan", value: 20, color: "#F59E0B" },
-  { name: "Tugagan", value: 8, color: "#EF4444" },
-  { name: "Ortiqcha", value: 7, color: "#004B34" },
-]
+const statusColors: Record<string, string> = {
+  Tasdiqlangan: "bg-green-500",
+  Qoralama: "bg-amber-500",
+  "Bekor qilingan": "bg-red-500",
+  Kutilmoqda: "bg-blue-500",
+}
 
-const categoryData = [
-  { name: "Ichimliklar", value: 35000000 },
-  { name: "Oziq-ovqat", value: 28000000 },
-  { name: "Gigiyena", value: 15000000 },
-  { name: "Maishiy texnika", value: 12000000 },
-  { name: "Boshqa", value: 8000000 },
-]
+export default function IncomingDocumentsPage() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [showFilters, setShowFilters] = useState(false)
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [showStatusDialog, setShowStatusDialog] = useState(false)
+  const [selectedDoc, setSelectedDoc] = useState<(typeof documents)[0] | null>(
+    null
+  )
+  const [newStatus, setNewStatus] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
+  const [showViewDialog, setShowViewDialog] = useState(false)
+  const [viewDoc, setViewDoc] = useState<(typeof documents)[0] | null>(null)
 
-const agingData = [
-  { range: "0-30 kun", value: 45 },
-  { range: "31-60 kun", value: 25 },
-  { range: "61-90 kun", value: 15 },
-  { range: "90+ kun", value: 15 },
-]
+  const filteredDocs = documents.filter((doc) => {
+    const matchesSearch =
+      doc.docNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.supplier.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesStatus =
+      statusFilter === "all" || doc.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
 
-const abcData = [
-  { name: "A (70%)", value: 70, color: "#99C61E" },
-  { name: "B (20%)", value: 20, color: "#004B34" },
-  { name: "C (10%)", value: 10, color: "#6B7280" },
-]
+  const totalPages = Math.ceil(filteredDocs.length / itemsPerPage)
+  const paginatedDocs = filteredDocs.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
 
-const turnoverData = [
-  { month: "Yan", turnover: 4.2 },
-  { month: "Fev", turnover: 4.5 },
-  { month: "Mar", turnover: 3.8 },
-  { month: "Apr", turnover: 5.1 },
-  { month: "May", turnover: 4.7 },
-  { month: "Iyn", turnover: 5.3 },
-]
-
-const abcXyzMatrix = [
-  { abc: "A", xyz: "X", count: 25, color: "bg-[#99C61E]" },
-  { abc: "A", xyz: "Y", count: 15, color: "bg-[#7BA817]" },
-  { abc: "A", xyz: "Z", count: 8, color: "bg-[#5D8A10]" },
-  { abc: "B", xyz: "X", count: 12, color: "bg-[#004B34]" },
-  { abc: "B", xyz: "Y", count: 18, color: "bg-[#006644]" },
-  { abc: "B", xyz: "Z", count: 10, color: "bg-[#008855]" },
-  { abc: "C", xyz: "X", count: 5, color: "bg-gray-500" },
-  { abc: "C", xyz: "Y", count: 8, color: "bg-gray-400" },
-  { abc: "C", xyz: "Z", count: 20, color: "bg-gray-300" },
-]
-
-export default function DashboardPage() {
-  const [timeRange, setTimeRange] = useState("month")
-  const inventoryScore = 78
-
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "bg-[#99C61E]"
-    if (score >= 60) return "bg-[#004B34]"
-    if (score >= 40) return "bg-amber-500"
-    return "bg-red-500"
+  const handleStatusChange = (doc: (typeof documents)[0]) => {
+    setSelectedDoc(doc)
+    setNewStatus(doc.status)
+    setShowStatusDialog(true)
   }
 
-  const getScoreLabel = (score: number) => {
-    if (score >= 80) return "A'lo"
-    if (score >= 60) return "Yaxshi"
-    if (score >= 40) return "O'rtacha"
-    return "Yomon"
+  const handleViewDoc = (doc: (typeof documents)[0]) => {
+    setViewDoc(doc)
+    setShowViewDialog(true)
+  }
+
+  const handleDownloadPDF = (doc: (typeof documents)[0]) => {
+    // Create PDF content
+    const pdfContent = `
+KIRIM HUJJATI
+
+Hujjat raqami: ${doc.docNumber}
+Sana: ${doc.date}
+Ta'minotchi: ${doc.supplier}
+Ombor: ${doc.warehouse}
+To'lov turi: ${doc.paymentType}
+Status: ${doc.status}
+
+MAHSULOTLAR:
+${doc.products.map((p, i) => `${i + 1}. ${p.name} - ${p.quantity} dona x ${formatCurrency(p.price)} = ${formatCurrency(p.total)}`).join('\n')}
+
+JAMI SUMMA: ${formatCurrency(doc.totalAmount)}
+    `.trim()
+
+    // Create and download file
+    const blob = new Blob([pdfContent], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${doc.docNumber}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("uz-UZ").format(amount) + " UZS"
   }
 
   return (
@@ -122,493 +207,311 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#004B34]">
-            Inventar boshqaruvi
-          </h1>
-          <p className="text-sm text-[#004B34]/60">
-            Omboringiz holatini kuzating
+          <h1 className="text-2xl font-bold text-slate-900">Kirim hujjatlari</h1>
+          <p className="text-sm text-slate-500">
+            Jami: {documents.length} ta hujjat
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[140px]">
-              <Calendar className="mr-2 h-4 w-4" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="week">Hafta</SelectItem>
-              <SelectItem value="month">Oy</SelectItem>
-              <SelectItem value="quarter">Chorak</SelectItem>
-              <SelectItem value="year">Yil</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline" size="icon">
-            <RefreshCw className="h-4 w-4" />
+        <Link href="/add">
+          <Button className="gap-2 bg-gradient-to-r from-[#004B34] to-[#006644]">
+            <Plus className="h-4 w-4" />
+            Yangi hujjat
           </Button>
-          <Button variant="outline" size="icon">
-            <Download className="h-4 w-4" />
-          </Button>
+        </Link>
+      </div>
+
+      {/* Search and Filters */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                placeholder="Hujjat raqami yoki ta'minotchi bo'yicha qidirish..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className="gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              Filtrlar
+            </Button>
+          </div>
+
+          {showFilters && (
+            <div className="mt-4 grid gap-4 border-t pt-4 sm:grid-cols-4">
+              <div>
+                <Label className="mb-2 block">Status</Label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Barchasi" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Barchasi</SelectItem>
+                    <SelectItem value="Tasdiqlangan">Tasdiqlangan</SelectItem>
+                    <SelectItem value="Qoralama">Qoralama</SelectItem>
+                    <SelectItem value="Kutilmoqda">Kutilmoqda</SelectItem>
+                    <SelectItem value="Bekor qilingan">
+                      Bekor qilingan
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="mb-2 block">Ta&apos;minotchi</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Barchasi" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Barchasi</SelectItem>
+                    <SelectItem value="coca-cola">Coca-Cola HBC</SelectItem>
+                    <SelectItem value="elma">Elma Group</SelectItem>
+                    <SelectItem value="nestle">Nestle Uzbekistan</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="mb-2 block">Sanadan</Label>
+                <Input type="date" />
+              </div>
+              <div>
+                <Label className="mb-2 block">Sanagacha</Label>
+                <Input type="date" />
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Table */}
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Hujjat raqami</TableHead>
+                <TableHead>Sana</TableHead>
+                <TableHead>Ta&apos;minotchi</TableHead>
+                <TableHead>Ombor</TableHead>
+                <TableHead>To&apos;lov</TableHead>
+                <TableHead className="text-right">Summa</TableHead>
+                <TableHead className="text-center">Soni</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Amallar</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedDocs.map((doc) => (
+                <TableRow key={doc.id}>
+                  <TableCell className="font-medium">{doc.docNumber}</TableCell>
+                  <TableCell>{doc.date}</TableCell>
+                  <TableCell>{doc.supplier}</TableCell>
+                  <TableCell>{doc.warehouse}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={
+                        doc.paymentType === "Naqd"
+                          ? "border-blue-500 text-blue-500"
+                          : "border-purple-500 text-purple-500"
+                      }
+                    >
+                      {doc.paymentType}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {formatCurrency(doc.totalAmount)}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant="secondary">{doc.itemsCount}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      className={`cursor-pointer ${statusColors[doc.status]}`}
+                      onClick={() => handleStatusChange(doc)}
+                    >
+                      {doc.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleViewDoc(doc)}
+                        title="Ko'rish"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      {doc.status !== "Tasdiqlangan" && (
+                        <Link href={`/edit/${doc.id}`}>
+                          <Button variant="ghost" size="icon" title="Tahrirlash">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDownloadPDF(doc)}
+                        title="Yuklab olish"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-slate-500">
+            {(currentPage - 1) * itemsPerPage + 1}-
+            {Math.min(currentPage * itemsPerPage, filteredDocs.length)} /{" "}
+            {filteredDocs.length} ta hujjat
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Oldingi
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Keyingi
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Inventory Health Score */}
-      <Card>
-        <CardContent className="py-6">
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-            <div className="text-center sm:text-left">
-              <h3 className="text-lg font-semibold">Inventar sog'ligi</h3>
-              <p className="text-sm text-slate-500">
-                Umumiy inventar holati bahosi
-              </p>
-            </div>
-            <div className="flex items-center gap-6">
-              <div className="text-center">
-                <div className="text-4xl font-bold">{inventoryScore}</div>
-                <div className="text-sm text-slate-500">/100 ball</div>
-              </div>
-              <div className="w-48">
-                <Progress
-                  value={inventoryScore}
-                  className={`h-3 ${getScoreColor(inventoryScore)}`}
-                />
-                <div className="mt-1 flex justify-between text-xs text-slate-500">
-                  <span>Yomon</span>
-                  <span className="font-medium text-slate-700">
-                    {getScoreLabel(inventoryScore)}
-                  </span>
-                  <span>A&apos;lo</span>
+      {/* View Document Dialog */}
+      <Dialog open={showViewDialog} onOpenChange={setShowViewDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Hujjat tafsilotlari - {viewDoc?.docNumber}</DialogTitle>
+          </DialogHeader>
+          {viewDoc && (
+            <div className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label className="text-slate-500">Ta&apos;minotchi</Label>
+                  <p className="font-medium">{viewDoc.supplier}</p>
                 </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ABC-XYZ Analysis Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>ABC-XYZ Tahlili</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-2">
-            <div></div>
-            <div className="grid grid-cols-3 gap-2 text-center text-sm font-medium">
-              <div>X</div>
-              <div>Y</div>
-              <div>Z</div>
-            </div>
-            <div></div>
-            {["A", "B", "C"].map((abc) => (
-              <div key={abc} className="contents">
-                <div className="flex items-center justify-center text-sm font-medium">
-                  {abc}
+                <div>
+                  <Label className="text-slate-500">Sana</Label>
+                  <p className="font-medium">{viewDoc.date}</p>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {["X", "Y", "Z"].map((xyz) => {
-                    const cell = abcXyzMatrix.find(
-                      (c) => c.abc === abc && c.xyz === xyz
-                    )
-                    return (
-                      <div
-                        key={`${abc}-${xyz}`}
-                        className={`${cell?.color} flex h-16 items-center justify-center rounded-lg text-white font-semibold`}
-                      >
-                        {cell?.count}
-                      </div>
-                    )
-                  })}
+                <div>
+                  <Label className="text-slate-500">Ombor</Label>
+                  <p className="font-medium">{viewDoc.warehouse}</p>
                 </div>
-                <div></div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-[#99C61E]/20 hover:shadow-lg hover:shadow-[#99C61E]/10 transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#004B34]/10">
-                <Package className="h-6 w-6 text-[#004B34]" />
-              </div>
-              <div>
-                <p className="text-sm text-[#004B34]/60">Jami SKU</p>
-                <p className="text-2xl font-bold text-[#004B34]">1,248</p>
-                <p className="text-xs text-[#99C61E]">+12 bu oy</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-[#99C61E]/20 hover:shadow-lg hover:shadow-[#99C61E]/10 transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#99C61E]/10">
-                <DollarSign className="h-6 w-6 text-[#99C61E]" />
-              </div>
-              <div>
-                <p className="text-sm text-[#004B34]/60">Umumiy qiymat</p>
-                <p className="text-2xl font-bold text-[#004B34]">98.5M</p>
-                <p className="text-xs text-[#99C61E]">+8.2% o&apos;sish</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-[#99C61E]/20 hover:shadow-lg hover:shadow-[#99C61E]/10 transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#004B34]/10">
-                <TrendingUp className="h-6 w-6 text-[#004B34]" />
-              </div>
-              <div>
-                <p className="text-sm text-[#004B34]/60">Inventar aylanmasi</p>
-                <p className="text-2xl font-bold text-[#004B34]">5.3x</p>
-                <p className="text-xs text-[#99C61E]">+0.6 o&apos;tgan oydan</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-red-200 hover:shadow-lg hover:shadow-red-100/50 transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-50">
-                <AlertTriangle className="h-6 w-6 text-red-500" />
-              </div>
-              <div>
-                <p className="text-sm text-[#004B34]/60">Tugagan mahsulotlar</p>
-                <p className="text-2xl font-bold text-[#004B34]">23</p>
-                <p className="text-xs text-red-500">Zudlik bilan to&apos;ldiring</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Tabs */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Umumiy ko&apos;rinish</TabsTrigger>
-          <TabsTrigger value="abc">ABC/XYZ Tahlili</TabsTrigger>
-          <TabsTrigger value="inventory">Inventar</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 lg:grid-cols-2">
-            {/* Inventory Value Trend */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">
-                  Inventar qiymati trendi
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={inventoryTrendData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis
-                        tickFormatter={(value) =>
-                          `${(value / 1000000).toFixed(0)}M`
-                        }
-                      />
-                      <Tooltip
-                        formatter={(value: number) =>
-                          `${(value / 1000000).toFixed(1)}M UZS`
-                        }
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="value"
-                        stroke="#004B34"
-                        fill="#99C61E"
-                        fillOpacity={0.3}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                <div>
+                  <Label className="text-slate-500">To&apos;lov turi</Label>
+                  <p className="font-medium">{viewDoc.paymentType}</p>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Inventory Health Pie */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Inventar holati</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={inventoryHealthData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={100}
-                        paddingAngle={2}
-                        dataKey="value"
-                        label={({ name, value }) => `${name}: ${value}%`}
-                      >
-                        {inventoryHealthData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Category Distribution */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">
-                  Kategoriya bo&apos;yicha qiymat
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={categoryData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis
-                        type="number"
-                        tickFormatter={(value) =>
-                          `${(value / 1000000).toFixed(0)}M`
-                        }
-                      />
-                      <YAxis dataKey="name" type="category" width={100} />
-                      <Tooltip
-                        formatter={(value: number) =>
-                          `${(value / 1000000).toFixed(1)}M UZS`
-                        }
-                      />
-                      <Bar dataKey="value" fill="#004B34" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Inventory Aging */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Inventar eskirishi</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={agingData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="range" />
-                      <YAxis />
-                      <Tooltip formatter={(value: number) => `${value}%`} />
-                      <Bar dataKey="value" fill="#99C61E" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Issue Cards */}
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Card className="border-l-4 border-l-red-500 hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-red-600">
-                      Tugagan mahsulotlar
-                    </p>
-                    <p className="text-sm text-[#004B34]/60">Zudlik bilan to&apos;ldirish kerak</p>
-                  </div>
-                  <Badge variant="destructive" className="text-lg">
-                    23
+                <div>
+                  <Label className="text-slate-500">Status</Label>
+                  <Badge className={statusColors[viewDoc.status]}>
+                    {viewDoc.status}
                   </Badge>
                 </div>
-              </CardContent>
-            </Card>
-            <Card className="border-l-4 border-l-amber-500 hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-amber-600">
-                      Kam qolgan mahsulotlar
-                    </p>
-                    <p className="text-sm text-[#004B34]/60">Minimal darajadan past</p>
-                  </div>
-                  <Badge className="bg-amber-500 text-white text-lg">
-                    45
-                  </Badge>
+              </div>
+
+              <div className="border-t pt-4">
+                <h4 className="mb-2 font-semibold">Mahsulotlar</h4>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Mahsulot</TableHead>
+                      <TableHead className="text-center">Miqdor</TableHead>
+                      <TableHead className="text-right">Narx</TableHead>
+                      <TableHead className="text-right">Jami</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {viewDoc.products.map((product, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>{product.name}</TableCell>
+                        <TableCell className="text-center">{product.quantity}</TableCell>
+                        <TableCell className="text-right">{formatCurrency(product.price)}</TableCell>
+                        <TableCell className="text-right font-medium">{formatCurrency(product.total)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <div className="mt-4 text-right">
+                  <span className="text-slate-500">Jami summa: </span>
+                  <span className="text-lg font-bold">{formatCurrency(viewDoc.totalAmount)}</span>
                 </div>
-              </CardContent>
-            </Card>
-            <Card className="border-l-4 border-l-[#004B34] hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-[#004B34]">
-                      Ortiqcha mahsulotlar
-                    </p>
-                    <p className="text-sm text-[#004B34]/60">Optimal darajadan yuqori</p>
-                  </div>
-                  <Badge className="bg-[#004B34] text-white text-lg">18</Badge>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowViewDialog(false)}>
+              Yopish
+            </Button>
+            <Button onClick={() => viewDoc && handleDownloadPDF(viewDoc)}>
+              <Download className="mr-2 h-4 w-4" />
+              Yuklab olish
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Status Change Dialog */}
+      <Dialog open={showStatusDialog} onOpenChange={setShowStatusDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Statusni o&apos;zgartirish</DialogTitle>
+            <DialogDescription>
+              Hujjat: {selectedDoc?.docNumber}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label className="mb-2 block">Yangi status</Label>
+            <Select value={newStatus} onValueChange={setNewStatus}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Tasdiqlangan">Tasdiqlangan</SelectItem>
+                <SelectItem value="Qoralama">Qoralama</SelectItem>
+                <SelectItem value="Kutilmoqda">Kutilmoqda</SelectItem>
+                <SelectItem value="Bekor qilingan">Bekor qilingan</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </TabsContent>
-
-        <TabsContent value="abc" className="space-y-4">
-          <div className="grid gap-4 lg:grid-cols-2">
-            {/* ABC Analysis Pie */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">ABC Tahlili</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={abcData}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={100}
-                        paddingAngle={2}
-                        dataKey="value"
-                        label={({ name }) => name}
-                      >
-                        {abcData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* ABC-XYZ Matrix Detail */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">ABC-XYZ Matritsasi</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-4 gap-2 text-center text-sm font-medium">
-                    <div></div>
-                    <div className="text-[#99C61E]">X (Barqaror)</div>
-                    <div className="text-amber-600">Y (O&apos;zgaruvchan)</div>
-                    <div className="text-red-500">Z (Nobarqaror)</div>
-                  </div>
-                  {["A", "B", "C"].map((abc) => (
-                    <div key={abc} className="grid grid-cols-4 gap-2">
-                      <div className="flex items-center justify-center font-medium">
-                        {abc === "A" && "A (Yuqori qiymat)"}
-                        {abc === "B" && "B (O'rta qiymat)"}
-                        {abc === "C" && "C (Past qiymat)"}
-                      </div>
-                      {["X", "Y", "Z"].map((xyz) => {
-                        const cell = abcXyzMatrix.find(
-                          (c) => c.abc === abc && c.xyz === xyz
-                        )
-                        return (
-                          <div
-                            key={`${abc}-${xyz}`}
-                            className={`${cell?.color} flex h-20 flex-col items-center justify-center rounded-lg text-white`}
-                          >
-                            <span className="text-2xl font-bold">
-                              {cell?.count}
-                            </span>
-                            <span className="text-xs">mahsulot</span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="inventory" className="space-y-4">
-          <div className="grid gap-4 lg:grid-cols-2">
-            {/* Inventory Turnover */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Inventar aylanmasi</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={turnoverData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line
-                        type="monotone"
-                        dataKey="turnover"
-                        stroke="#004B34"
-                        strokeWidth={2}
-                        dot={{ fill: "#99C61E" }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Days of Supply */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">
-                  Ta&apos;minot kunlari
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col items-center justify-center py-8">
-                  <div className="relative h-40 w-40">
-                    <svg className="h-full w-full -rotate-90 transform">
-                      <circle
-                        cx="80"
-                        cy="80"
-                        r="70"
-                        stroke="#e2e8f0"
-                        strokeWidth="12"
-                        fill="none"
-                      />
-                      <circle
-                        cx="80"
-                        cy="80"
-                        r="70"
-                        stroke="#99C61E"
-                        strokeWidth="12"
-                        fill="none"
-                        strokeDasharray={`${(45 / 60) * 440} 440`}
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-4xl font-bold text-[#004B34]">45</span>
-                      <span className="text-sm text-[#004B34]/60">kun</span>
-                    </div>
-                  </div>
-                  <p className="mt-4 text-center text-sm text-[#004B34]/60">
-                    Joriy inventar 45 kun davomida yetarli
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowStatusDialog(false)}
+            >
+              Bekor qilish
+            </Button>
+            <Button onClick={() => setShowStatusDialog(false)}>Saqlash</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

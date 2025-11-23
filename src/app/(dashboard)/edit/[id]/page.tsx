@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { ArrowLeft, Plus, Trash2, Search } from "lucide-react"
+import { useRouter, useParams } from "next/navigation"
+import { ArrowLeft, Plus, Trash2, Search, Download } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,14 +23,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 
 interface ProductRow {
   id: number
@@ -47,35 +39,105 @@ interface ProductRow {
   expiryDate: string
 }
 
-export default function AddDocumentPage() {
+// Sample documents data (in real app, this would come from API)
+const documentsData: Record<string, {
+  docNumber: string
+  date: string
+  supplier: string
+  warehouse: string
+  paymentType: string
+  receiver: string
+  status: string
+  products: Array<{
+    name: string
+    quantity: number
+    price: number
+    total: number
+    unit: string
+    barcode: string
+    markup: number
+    sellingPrice: number
+  }>
+}> = {
+  "2": {
+    docNumber: "DOC-2025-002",
+    date: "2025-01-14",
+    supplier: "elma",
+    warehouse: "asosiy",
+    paymentType: "bank",
+    receiver: "Alisher",
+    status: "Qoralama",
+    products: [
+      { name: "Elma Sok 1L", quantity: 50, price: 14000, total: 700000, unit: "dona", barcode: "4600002345678", markup: 25, sellingPrice: 17500 },
+      { name: "Elma Nektar 0.5L", quantity: 80, price: 9000, total: 720000, unit: "dona", barcode: "4600002345679", markup: 25, sellingPrice: 11250 },
+    ],
+  },
+  "4": {
+    docNumber: "DOC-2025-004",
+    date: "2025-01-12",
+    supplier: "pg",
+    warehouse: "asosiy",
+    paymentType: "bank",
+    receiver: "Bobur",
+    status: "Kutilmoqda",
+    products: [
+      { name: "Ariel 3kg", quantity: 100, price: 85000, total: 8500000, unit: "dona", barcode: "4600003456789", markup: 20, sellingPrice: 102000 },
+      { name: "Tide 2kg", quantity: 60, price: 60000, total: 3600000, unit: "dona", barcode: "4600003456790", markup: 20, sellingPrice: 72000 },
+    ],
+  },
+}
+
+const suppliers = [
+  { id: "coca-cola", name: "Coca-Cola HBC" },
+  { id: "elma", name: "Elma Group" },
+  { id: "nestle", name: "Nestle Uzbekistan" },
+  { id: "pg", name: "P&G Distribution" },
+]
+
+export default function EditDocumentPage() {
   const router = useRouter()
+  const params = useParams()
+  const docId = params.id as string
+
   const [supplier, setSupplier] = useState("")
   const [warehouse, setWarehouse] = useState("")
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0])
+  const [date, setDate] = useState("")
   const [paymentType, setPaymentType] = useState("")
   const [receiver, setReceiver] = useState("")
-  const [docNumber, setDocNumber] = useState(
-    `DOC-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 1000)).padStart(3, "0")}`
-  )
-  const [showAddSupplier, setShowAddSupplier] = useState(false)
-  const [showAddProduct, setShowAddProduct] = useState(false)
+  const [docNumber, setDocNumber] = useState("")
+  const [loading, setLoading] = useState(true)
 
-  const [products, setProducts] = useState<ProductRow[]>([
-    {
-      id: 1,
-      barcode: "",
-      name: "",
-      stock: 0,
-      quantity: 0,
-      unit: "dona",
-      purchasePrice: 0,
-      markup: 25,
-      sellingPrice: 0,
-      totalPurchase: 0,
-      totalSelling: 0,
-      expiryDate: "",
-    },
-  ])
+  const [products, setProducts] = useState<ProductRow[]>([])
+
+  useEffect(() => {
+    // Load document data
+    const docData = documentsData[docId]
+    if (docData) {
+      setSupplier(docData.supplier)
+      setWarehouse(docData.warehouse)
+      setDate(docData.date)
+      setPaymentType(docData.paymentType)
+      setReceiver(docData.receiver)
+      setDocNumber(docData.docNumber)
+      setProducts(
+        docData.products.map((p, idx) => ({
+          id: idx + 1,
+          barcode: p.barcode,
+          name: p.name,
+          stock: 0,
+          quantity: p.quantity,
+          unit: p.unit,
+          purchasePrice: p.price,
+          markup: p.markup,
+          sellingPrice: p.sellingPrice,
+          totalPurchase: p.total,
+          totalSelling: p.quantity * p.sellingPrice,
+          expiryDate: "",
+        }))
+      )
+    }
+    setLoading(false)
+  }, [docId])
 
   const addProductRow = () => {
     setProducts([
@@ -114,7 +176,6 @@ export default function AddDocumentPage() {
 
         const updated = { ...p, [field]: value }
 
-        // Auto-calculate selling price based on markup
         if (field === "purchasePrice" || field === "markup") {
           const purchasePrice =
             field === "purchasePrice" ? Number(value) : p.purchasePrice
@@ -124,7 +185,6 @@ export default function AddDocumentPage() {
           )
         }
 
-        // Calculate totals
         if (
           field === "quantity" ||
           field === "purchasePrice" ||
@@ -148,8 +208,34 @@ export default function AddDocumentPage() {
     return new Intl.NumberFormat("uz-UZ").format(amount)
   }
 
+  const handleDownloadPDF = () => {
+    const pdfContent = `
+KIRIM HUJJATI
+
+Hujjat raqami: ${docNumber}
+Sana: ${date}
+Ta'minotchi: ${suppliers.find(s => s.id === supplier)?.name || supplier}
+Ombor: ${warehouse === 'asosiy' ? 'Asosiy ombor' : 'Ikkinchi ombor'}
+To'lov turi: ${paymentType}
+
+MAHSULOTLAR:
+${products.map((p, i) => `${i + 1}. ${p.name} - ${p.quantity} ${p.unit} x ${formatCurrency(p.purchasePrice)} = ${formatCurrency(p.totalPurchase)} UZS`).join('\n')}
+
+JAMI SUMMA: ${formatCurrency(totalPurchase)} UZS
+    `.trim()
+
+    const blob = new Blob([pdfContent], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${docNumber}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   const handleSubmit = (status: "Qoralama" | "Tasdiqlangan") => {
-    // Here you would submit to API
     console.log({
       supplier,
       warehouse,
@@ -160,26 +246,51 @@ export default function AddDocumentPage() {
       products,
       status,
     })
-    router.push("/yetib-kelgan")
+    router.push("/")
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <p className="text-slate-500">Yuklanmoqda...</p>
+      </div>
+    )
+  }
+
+  if (!documentsData[docId]) {
+    return (
+      <div className="flex h-64 flex-col items-center justify-center gap-4">
+        <p className="text-slate-500">Hujjat topilmadi</p>
+        <Link href="/">
+          <Button>Orqaga qaytish</Button>
+        </Link>
+      </div>
+    )
   }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/yetib-kelgan">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            Yangi kirim hujjati
-          </h1>
-          <p className="text-sm text-slate-500">
-            Yangi xarid hujjatini yarating
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">
+              Hujjatni tahrirlash
+            </h1>
+            <p className="text-sm text-slate-500">
+              Hujjat: {docNumber}
+            </p>
+          </div>
         </div>
+        <Button variant="outline" onClick={handleDownloadPDF}>
+          <Download className="mr-2 h-4 w-4" />
+          Yuklab olish
+        </Button>
       </div>
 
       {/* Form Fields */}
@@ -188,26 +299,18 @@ export default function AddDocumentPage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <Label className="mb-2 block">Ta&apos;minotchi</Label>
-              <div className="flex gap-2">
-                <Select value={supplier} onValueChange={setSupplier}>
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder="Tanlang..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="coca-cola">Coca-Cola HBC</SelectItem>
-                    <SelectItem value="elma">Elma Group</SelectItem>
-                    <SelectItem value="nestle">Nestle Uzbekistan</SelectItem>
-                    <SelectItem value="pg">P&G Distribution</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setShowAddSupplier(true)}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
+              <Select value={supplier} onValueChange={setSupplier}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Tanlang..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {suppliers.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
@@ -270,14 +373,6 @@ export default function AddDocumentPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Mahsulotlar</CardTitle>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowAddProduct(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Yangi mahsulot
-          </Button>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -466,6 +561,9 @@ export default function AddDocumentPage() {
               </div>
             </div>
             <div className="flex gap-3">
+              <Link href="/">
+                <Button variant="outline">Bekor qilish</Button>
+              </Link>
               <Button
                 variant="outline"
                 onClick={() => handleSubmit("Qoralama")}
@@ -473,7 +571,7 @@ export default function AddDocumentPage() {
                 Qoralama sifatida saqlash
               </Button>
               <Button
-                className="bg-gradient-to-r from-green-600 to-green-500"
+                className="bg-gradient-to-r from-[#004B34] to-[#006644]"
                 onClick={() => handleSubmit("Tasdiqlangan")}
               >
                 Tasdiqlash
@@ -482,95 +580,6 @@ export default function AddDocumentPage() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Add Supplier Dialog */}
-      <Dialog open={showAddSupplier} onOpenChange={setShowAddSupplier}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Yangi ta&apos;minotchi</DialogTitle>
-            <DialogDescription>
-              Yangi ta&apos;minotchi ma&apos;lumotlarini kiriting
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div>
-              <Label className="mb-2 block">Nomi</Label>
-              <Input placeholder="Ta'minotchi nomi" />
-            </div>
-            <div>
-              <Label className="mb-2 block">Telefon</Label>
-              <Input placeholder="+998 XX XXX XX XX" />
-            </div>
-            <div>
-              <Label className="mb-2 block">Manzil</Label>
-              <Input placeholder="Manzil" />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowAddSupplier(false)}
-            >
-              Bekor qilish
-            </Button>
-            <Button onClick={() => setShowAddSupplier(false)}>Saqlash</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Product Dialog */}
-      <Dialog open={showAddProduct} onOpenChange={setShowAddProduct}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Yangi mahsulot</DialogTitle>
-            <DialogDescription>
-              Yangi mahsulot ma&apos;lumotlarini kiriting
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div>
-              <Label className="mb-2 block">Shtrix-kod</Label>
-              <Input placeholder="Shtrix-kod" />
-            </div>
-            <div>
-              <Label className="mb-2 block">Nomi</Label>
-              <Input placeholder="Mahsulot nomi" />
-            </div>
-            <div>
-              <Label className="mb-2 block">Kategoriya</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Tanlang..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ichimliklar">Ichimliklar</SelectItem>
-                  <SelectItem value="oziq-ovqat">Oziq-ovqat</SelectItem>
-                  <SelectItem value="gigiyena">Gigiyena</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-2 block">O&apos;lchov birligi</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Tanlang..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="dona">dona</SelectItem>
-                  <SelectItem value="kg">kg</SelectItem>
-                  <SelectItem value="litr">litr</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddProduct(false)}>
-              Bekor qilish
-            </Button>
-            <Button onClick={() => setShowAddProduct(false)}>Saqlash</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
