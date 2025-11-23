@@ -127,28 +127,28 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-64 bg-gradient-to-b from-[#004B34] via-[#003D2B] to-[#002E20] transition-transform duration-300 lg:translate-x-0",
+          "fixed left-0 top-0 z-50 h-full w-64 bg-gradient-to-b from-[#004B34] via-[#003D2B] to-[#002518] transition-transform duration-300 ease-out lg:translate-x-0 shadow-2xl shadow-black/20",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex items-center justify-between p-4">
+          <div className="flex items-center justify-between p-5 border-b border-[#99C61E]/10">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#99C61E] to-[#7BA817] font-bold text-[#004B34] shadow-lg shadow-[#99C61E]/20">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#99C61E] to-[#7BA817] font-bold text-[#004B34] text-lg shadow-lg shadow-[#99C61E]/30 transition-transform hover:scale-105">
                 K
               </div>
               <div>
                 <h1 className="text-lg font-bold text-white tracking-wide">
                   Kometa
                 </h1>
-                <p className="text-xs text-[#99C61E]/80">Biznes tizimi</p>
+                <p className="text-xs text-[#99C61E]/70 font-medium">Biznes tizimi</p>
               </div>
             </div>
             <Button
               variant="ghost"
               size="icon"
-              className="text-slate-400 hover:text-white lg:hidden"
+              className="text-white/50 hover:text-white hover:bg-white/10 rounded-xl lg:hidden transition-all"
               onClick={onClose}
             >
               <X className="h-5 w-5" />
@@ -156,11 +156,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </div>
 
           {/* Menu Settings Toggle */}
-          <div className="px-4 pb-2">
+          <div className="px-4 py-3">
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-start gap-2 text-white/60 hover:bg-[#99C61E]/10 hover:text-[#99C61E]"
+              className={cn(
+                "w-full justify-start gap-2 text-white/50 hover:bg-white/5 hover:text-white/80 rounded-xl h-9 transition-all",
+                showSettings && "bg-white/5 text-[#99C61E]"
+              )}
               onClick={() => setShowSettings(!showSettings)}
             >
               {showSettings ? (
@@ -168,7 +171,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               ) : (
                 <Eye className="h-4 w-4" />
               )}
-              <span className="text-xs">Menu sozlamalari</span>
+              <span className="text-xs font-medium">Menu sozlamalari</span>
             </Button>
           </div>
 
@@ -269,10 +272,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </ScrollArea>
 
           {/* Footer */}
-          <div className="border-t border-[#99C61E]/20 p-4">
-            <p className="text-center text-xs text-white/50">
-              © 2025 Kometa
-            </p>
+          <div className="border-t border-[#99C61E]/10 p-4">
+            <div className="flex items-center justify-center gap-2">
+              <div className="h-5 w-5 rounded-md bg-gradient-to-br from-[#99C61E] to-[#7BA817] flex items-center justify-center text-[8px] font-bold text-[#004B34]">
+                K
+              </div>
+              <p className="text-xs text-white/40 font-medium">
+                © 2025 Kometa
+              </p>
+            </div>
           </div>
         </div>
       </aside>
