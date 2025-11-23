@@ -34,7 +34,7 @@ const allProducts = [
     barcode: "4600492001234",
     price: 12000,
     unit: "So'm",
-    store: "Bob's Supermarket",
+    store: "Kometa",
   },
   {
     id: 3,
@@ -42,7 +42,7 @@ const allProducts = [
     barcode: "4600492001241",
     price: 8500,
     unit: "So'm",
-    store: "Bob's Supermarket",
+    store: "Kometa",
   },
   {
     id: 4,
@@ -50,7 +50,7 @@ const allProducts = [
     barcode: "4600492001258",
     price: 15000,
     unit: "So'm",
-    store: "Bob's Supermarket",
+    store: "Kometa",
   },
   {
     id: 5,
@@ -58,7 +58,7 @@ const allProducts = [
     barcode: "7613034626844",
     price: 25000,
     unit: "So'm",
-    store: "Bob's Supermarket",
+    store: "Kometa",
   },
   {
     id: 6,
@@ -66,7 +66,7 @@ const allProducts = [
     barcode: "6920354814471",
     price: 18000,
     unit: "So'm",
-    store: "Bob's Supermarket",
+    store: "Kometa",
   },
   {
     id: 7,
@@ -74,7 +74,7 @@ const allProducts = [
     barcode: "8722700055556",
     price: 32000,
     unit: "So'm",
-    store: "Bob's Supermarket",
+    store: "Kometa",
   },
   {
     id: 8,
@@ -82,7 +82,7 @@ const allProducts = [
     barcode: "8001841459721",
     price: 45000,
     unit: "So'm",
-    store: "Bob's Supermarket",
+    store: "Kometa",
   },
 ]
 
@@ -105,7 +105,8 @@ export default function PriceTagPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedProducts, setSelectedProducts] = useState<typeof allProducts>([])
   const [selectedSize, setSelectedSize] = useState<TagSize>("60x40")
-  const [storeName, setStoreName] = useState("Bob's Supermarket")
+  const [storeName, setStoreName] = useState("Kometa")
+  const [templateStyle, setTemplateStyle] = useState<"classic" | "modern" | "minimal" | "elegant">("modern")
   const canvasRefs = useRef<{ [key: number]: HTMLCanvasElement | null }>({})
 
   const filteredProducts = allProducts.filter((product) =>
@@ -170,103 +171,246 @@ export default function PriceTagPage() {
       }
 
       const canvas = canvasRefs.current[product.id]
-
-      // Draw corner decorations
-      pdf.setDrawColor(0, 75, 52) // #004B34
-      pdf.setLineWidth(0.3)
-
-      // Top-left corner
-      pdf.line(1, 1, 3, 1)
-      pdf.line(1, 1, 1, 3)
-
-      // Top-right corner
-      pdf.line(size.width - 3, 1, size.width - 1, 1)
-      pdf.line(size.width - 1, 1, size.width - 1, 3)
-
-      // Bottom-left corner
-      pdf.line(1, size.height - 1, 3, size.height - 1)
-      pdf.line(1, size.height - 3, 1, size.height - 1)
-
-      // Bottom-right corner
-      pdf.line(size.width - 3, size.height - 1, size.width - 1, size.height - 1)
-      pdf.line(size.width - 1, size.height - 3, size.width - 1, size.height - 1)
-
-      // Store name header with background
-      pdf.setFillColor(0, 75, 52) // #004B34
-      pdf.roundedRect(2, 2, size.width - 4, 4, 0.5, 0.5, "F")
-
-      pdf.setFont("helvetica", "bold")
-      pdf.setFontSize(6)
-      pdf.setTextColor(255, 255, 255)
-      pdf.text(storeName.toUpperCase(), size.width / 2, 4.5, { align: "center" })
-
-      // Product name
-      pdf.setFontSize(selectedSize === "30x20" ? 6 : selectedSize === "40x30" ? 7 : 8)
-      pdf.setTextColor(0, 0, 0)
-      pdf.setFont("helvetica", "bold")
-      const productNameLines = pdf.splitTextToSize(product.name, size.width - 6)
-      const nameLinesCount = Math.min(productNameLines.length, selectedSize === "30x20" ? 1 : 2)
-      pdf.text(productNameLines.slice(0, nameLinesCount), size.width / 2, 8, { align: "center" })
-
-      // Divider line
-      const dividerY = selectedSize === "30x20" ? 10 : selectedSize === "40x30" ? 11.5 : 12
-      pdf.setDrawColor(0, 75, 52)
-      pdf.setLineWidth(0.1)
-      const lineStart = size.width * 0.2
-      const lineEnd = size.width * 0.8
-      pdf.line(lineStart, dividerY, lineEnd, dividerY)
-
-      // Price with yellow background
-      const priceY = selectedSize === "30x20" ? 13 : selectedSize === "40x30" ? 16 : 18
-      const priceParts = formatPrice(product.price)
-      const priceText = `${priceParts.join(" ")} ${product.unit}`
-
-      // Yellow background for price
-      pdf.setFillColor(254, 252, 232) // Light yellow
-      const textWidth = pdf.getTextWidth(priceText)
-      pdf.roundedRect(
-        (size.width - textWidth - 2) / 2,
-        priceY - 3,
-        textWidth + 2,
-        3.5,
-        0.5,
-        0.5,
-        "F"
-      )
-
-      pdf.setFontSize(selectedSize === "30x20" ? 12 : selectedSize === "40x30" ? 16 : 20)
-      pdf.setFont("helvetica", "bold")
-      pdf.setTextColor(0, 75, 52) // #004B34
-      pdf.text(priceText, size.width / 2, priceY, { align: "center" })
-
-      // Barcode with white background
-      if (canvas) {
-        const barcodeY = selectedSize === "30x20" ? 15 : selectedSize === "40x30" ? 20 : 24
-        const barcodeHeight = selectedSize === "30x20" ? 4 : selectedSize === "40x30" ? 8 : 12
-        const barcodeWidth = size.width - 4
-
-        // White background for barcode
-        pdf.setFillColor(255, 255, 255)
-        pdf.roundedRect(2, barcodeY - 0.5, barcodeWidth, barcodeHeight + 1, 0.5, 0.5, "F")
-
-        const imgData = canvas.toDataURL("image/png")
-        pdf.addImage(imgData, "PNG", 2, barcodeY, barcodeWidth, barcodeHeight)
-      }
-
-      // Date at bottom
       const date = new Date().toLocaleDateString("ru-RU", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
       })
-      pdf.setFontSize(5)
-      pdf.setFont("helvetica", "normal")
-      pdf.setTextColor(100, 100, 100)
-      pdf.text(`📅 ${date}`, size.width / 2, size.height - 2, { align: "center" })
+
+      if (templateStyle === "modern") {
+        // Modern Template - Clean and professional
+        pdf.setFillColor(0, 75, 52) // #004B34
+        pdf.rect(0, 0, size.width, 6, "F")
+
+        pdf.setFont("helvetica", "bold")
+        pdf.setFontSize(8)
+        pdf.setTextColor(255, 255, 255)
+        pdf.text(storeName.toUpperCase(), size.width / 2, 4, { align: "center" })
+
+        // Product name
+        pdf.setFontSize(selectedSize === "30x20" ? 7 : selectedSize === "40x30" ? 8 : 9)
+        pdf.setTextColor(0, 0, 0)
+        pdf.setFont("helvetica", "bold")
+        const productNameLines = pdf.splitTextToSize(product.name, size.width - 4)
+        const nameLinesCount = Math.min(productNameLines.length, 2)
+        pdf.text(productNameLines.slice(0, nameLinesCount), size.width / 2, 9, { align: "center" })
+
+        // Barcode
+        if (canvas) {
+          const barcodeY = selectedSize === "30x20" ? 12 : selectedSize === "40x30" ? 14 : 15
+          const barcodeHeight = selectedSize === "30x20" ? 5 : selectedSize === "40x30" ? 8 : 10
+          const barcodeWidth = size.width - 4
+
+          pdf.setFillColor(255, 255, 255)
+          pdf.rect(2, barcodeY - 0.5, barcodeWidth, barcodeHeight + 1, "F")
+
+          const imgData = canvas.toDataURL("image/png")
+          pdf.addImage(imgData, "PNG", 2, barcodeY, barcodeWidth, barcodeHeight)
+        }
+
+        // Barcode text
+        pdf.setFontSize(6)
+        pdf.setFont("helvetica", "normal")
+        pdf.setTextColor(0, 0, 0)
+        const barcodeTextY = selectedSize === "30x20" ? 18 : selectedSize === "40x30" ? 23 : 26
+        pdf.text(product.barcode, size.width / 2, barcodeTextY, { align: "center" })
+
+        // Price
+        const priceY = selectedSize === "30x20" ? size.height - 6 : selectedSize === "40x30" ? size.height - 6 : size.height - 7
+        pdf.setFillColor(153, 198, 30) // #99C61E
+        pdf.rect(0, priceY - 2, size.width, selectedSize === "30x20" ? 5 : 6, "F")
+
+        pdf.setFontSize(selectedSize === "30x20" ? 14 : selectedSize === "40x30" ? 18 : 22)
+        pdf.setFont("helvetica", "bold")
+        pdf.setTextColor(255, 255, 255)
+        const priceText = `${formatCurrency(product.price)} So'm`
+        pdf.text(priceText, size.width / 2, priceY + 2, { align: "center" })
+
+        // Date
+        pdf.setFontSize(5)
+        pdf.setFont("helvetica", "normal")
+        pdf.setTextColor(100, 100, 100)
+        pdf.text(date, size.width / 2, size.height - 1, { align: "center" })
+
+      } else if (templateStyle === "classic") {
+        // Classic Template - Traditional design with borders
+        pdf.setDrawColor(0, 75, 52)
+        pdf.setLineWidth(0.5)
+        pdf.rect(1, 1, size.width - 2, size.height - 2)
+
+        pdf.setFillColor(0, 75, 52)
+        pdf.roundedRect(2, 2, size.width - 4, 5, 0.5, 0.5, "F")
+
+        pdf.setFont("helvetica", "bold")
+        pdf.setFontSize(7)
+        pdf.setTextColor(255, 255, 255)
+        pdf.text(storeName.toUpperCase(), size.width / 2, 5.5, { align: "center" })
+
+        // Product name
+        pdf.setFontSize(selectedSize === "30x20" ? 6 : selectedSize === "40x30" ? 7 : 8)
+        pdf.setTextColor(0, 0, 0)
+        pdf.setFont("helvetica", "bold")
+        const productNameLines = pdf.splitTextToSize(product.name, size.width - 6)
+        const nameLinesCount = Math.min(productNameLines.length, 2)
+        pdf.text(productNameLines.slice(0, nameLinesCount), size.width / 2, 10, { align: "center" })
+
+        // Price section
+        const priceY = selectedSize === "30x20" ? 14 : selectedSize === "40x30" ? 17 : 18
+        pdf.setFillColor(254, 252, 232)
+        pdf.roundedRect(3, priceY - 3, size.width - 6, 5, 0.5, 0.5, "F")
+
+        pdf.setFontSize(selectedSize === "30x20" ? 12 : selectedSize === "40x30" ? 16 : 20)
+        pdf.setFont("helvetica", "bold")
+        pdf.setTextColor(0, 75, 52)
+        const priceText = `${formatCurrency(product.price)} So'm`
+        pdf.text(priceText, size.width / 2, priceY + 1, { align: "center" })
+
+        // Barcode
+        if (canvas) {
+          const barcodeY = selectedSize === "30x20" ? 18 : selectedSize === "40x30" ? 23 : 26
+          const barcodeHeight = selectedSize === "30x20" ? 4 : selectedSize === "40x30" ? 6 : 8
+          const barcodeWidth = size.width - 6
+
+          pdf.setFillColor(255, 255, 255)
+          pdf.rect(3, barcodeY - 0.5, barcodeWidth, barcodeHeight + 1, "F")
+
+          const imgData = canvas.toDataURL("image/png")
+          pdf.addImage(imgData, "PNG", 3, barcodeY, barcodeWidth, barcodeHeight)
+        }
+
+        // Date
+        pdf.setFontSize(5)
+        pdf.setFont("helvetica", "normal")
+        pdf.setTextColor(100, 100, 100)
+        pdf.text(date, size.width / 2, size.height - 1.5, { align: "center" })
+
+      } else if (templateStyle === "minimal") {
+        // Minimal Template - Simple and clean
+        pdf.setFont("helvetica", "bold")
+        pdf.setFontSize(7)
+        pdf.setTextColor(0, 75, 52)
+        pdf.text(storeName.toUpperCase(), size.width / 2, 3, { align: "center" })
+
+        pdf.setLineWidth(0.2)
+        pdf.setDrawColor(0, 75, 52)
+        pdf.line(5, 4, size.width - 5, 4)
+
+        // Product name
+        pdf.setFontSize(selectedSize === "30x20" ? 7 : selectedSize === "40x30" ? 8 : 9)
+        pdf.setTextColor(0, 0, 0)
+        pdf.setFont("helvetica", "bold")
+        const productNameLines = pdf.splitTextToSize(product.name, size.width - 4)
+        pdf.text(productNameLines.slice(0, 2), size.width / 2, 7, { align: "center" })
+
+        // Barcode
+        if (canvas) {
+          const barcodeY = selectedSize === "30x20" ? 11 : selectedSize === "40x30" ? 13 : 14
+          const barcodeHeight = selectedSize === "30x20" ? 5 : selectedSize === "40x30" ? 8 : 10
+          const barcodeWidth = size.width - 4
+
+          const imgData = canvas.toDataURL("image/png")
+          pdf.addImage(imgData, "PNG", 2, barcodeY, barcodeWidth, barcodeHeight)
+        }
+
+        // Barcode text
+        pdf.setFontSize(6)
+        pdf.setFont("helvetica", "normal")
+        pdf.setTextColor(80, 80, 80)
+        const barcodeTextY = selectedSize === "30x20" ? 17 : selectedSize === "40x30" ? 22 : 25
+        pdf.text(product.barcode, size.width / 2, barcodeTextY, { align: "center" })
+
+        // Price
+        const priceY = selectedSize === "30x20" ? size.height - 4 : selectedSize === "40x30" ? size.height - 5 : size.height - 6
+        pdf.setFontSize(selectedSize === "30x20" ? 16 : selectedSize === "40x30" ? 20 : 24)
+        pdf.setFont("helvetica", "bold")
+        pdf.setTextColor(0, 75, 52)
+        const priceText = `${formatCurrency(product.price)}`
+        pdf.text(priceText, size.width / 2, priceY, { align: "center" })
+
+        pdf.setFontSize(7)
+        pdf.text("So'm", size.width / 2, priceY + 3, { align: "center" })
+
+        // Date
+        pdf.setFontSize(5)
+        pdf.setFont("helvetica", "normal")
+        pdf.setTextColor(120, 120, 120)
+        pdf.text(date, size.width / 2, size.height - 1, { align: "center" })
+
+      } else if (templateStyle === "elegant") {
+        // Elegant Template - Premium design
+        pdf.setDrawColor(0, 75, 52)
+        pdf.setLineWidth(0.3)
+
+        // Corner decorations
+        pdf.line(1, 1, 4, 1)
+        pdf.line(1, 1, 1, 4)
+        pdf.line(size.width - 4, 1, size.width - 1, 1)
+        pdf.line(size.width - 1, 1, size.width - 1, 4)
+        pdf.line(1, size.height - 1, 4, size.height - 1)
+        pdf.line(1, size.height - 4, 1, size.height - 1)
+        pdf.line(size.width - 4, size.height - 1, size.width - 1, size.height - 1)
+        pdf.line(size.width - 1, size.height - 4, size.width - 1, size.height - 1)
+
+        // Store name
+        pdf.setFont("helvetica", "bold")
+        pdf.setFontSize(8)
+        pdf.setTextColor(0, 75, 52)
+        pdf.text(storeName.toUpperCase(), size.width / 2, 5, { align: "center" })
+
+        // Decorative line
+        pdf.setDrawColor(153, 198, 30)
+        pdf.setLineWidth(0.5)
+        pdf.line(8, 6.5, size.width - 8, 6.5)
+
+        // Product name
+        pdf.setFontSize(selectedSize === "30x20" ? 7 : selectedSize === "40x30" ? 8 : 9)
+        pdf.setTextColor(0, 0, 0)
+        pdf.setFont("helvetica", "bold")
+        const productNameLines = pdf.splitTextToSize(product.name, size.width - 6)
+        pdf.text(productNameLines.slice(0, 2), size.width / 2, 10, { align: "center" })
+
+        // Price with elegant frame
+        const priceY = selectedSize === "30x20" ? 15 : selectedSize === "40x30" ? 17 : 19
+        pdf.setDrawColor(0, 75, 52)
+        pdf.setLineWidth(0.3)
+        pdf.setFillColor(248, 250, 252)
+        pdf.roundedRect(4, priceY - 3.5, size.width - 8, 5, 0.5, 0.5, "FD")
+
+        pdf.setFontSize(selectedSize === "30x20" ? 14 : selectedSize === "40x30" ? 18 : 22)
+        pdf.setFont("helvetica", "bold")
+        pdf.setTextColor(0, 75, 52)
+        const priceText = `${formatCurrency(product.price)} So'm`
+        pdf.text(priceText, size.width / 2, priceY + 1, { align: "center" })
+
+        // Barcode
+        if (canvas) {
+          const barcodeY = selectedSize === "30x20" ? 18 : selectedSize === "40x30" ? 23 : 26
+          const barcodeHeight = selectedSize === "30x20" ? 4 : selectedSize === "40x30" ? 6 : 8
+          const barcodeWidth = size.width - 8
+
+          pdf.setFillColor(255, 255, 255)
+          pdf.rect(4, barcodeY - 0.5, barcodeWidth, barcodeHeight + 1, "F")
+
+          const imgData = canvas.toDataURL("image/png")
+          pdf.addImage(imgData, "PNG", 4, barcodeY, barcodeWidth, barcodeHeight)
+        }
+
+        // Barcode text
+        pdf.setFontSize(6)
+        pdf.setFont("helvetica", "normal")
+        pdf.setTextColor(80, 80, 80)
+        const barcodeTextY = selectedSize === "30x20" ? 23 : selectedSize === "40x30" ? 29 : 35
+        pdf.text(product.barcode, size.width / 2, barcodeTextY, { align: "center" })
+
+        // Date
+        pdf.setFontSize(5)
+        pdf.setFont("helvetica", "italic")
+        pdf.setTextColor(120, 120, 120)
+        pdf.text(date, size.width / 2, size.height - 1.5, { align: "center" })
+      }
     })
 
-    // Save or print
-    pdf.save(`narx-yorligi-${selectedSize}.pdf`)
+    pdf.save(`kometa-narx-yorligi-${selectedSize}-${templateStyle}.pdf`)
   }
 
   return (
@@ -354,6 +498,72 @@ export default function PriceTagPage() {
 
         {/* Right Panel - Preview */}
         <div className="flex-1 p-6 overflow-y-auto">
+          {/* Template Style Selection */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <QrCode className="h-5 w-5" />
+                Dizayn uslubi
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-4 gap-3">
+                <Button
+                  variant={templateStyle === "modern" ? "default" : "outline"}
+                  className={cn(
+                    "h-20",
+                    templateStyle === "modern" && "bg-[#004B34] hover:bg-[#003D2B] text-white"
+                  )}
+                  onClick={() => setTemplateStyle("modern")}
+                >
+                  <div className="text-center">
+                    <div className="font-semibold">Zamonaviy</div>
+                    <div className="text-xs opacity-70 mt-1">Modern</div>
+                  </div>
+                </Button>
+                <Button
+                  variant={templateStyle === "classic" ? "default" : "outline"}
+                  className={cn(
+                    "h-20",
+                    templateStyle === "classic" && "bg-[#004B34] hover:bg-[#003D2B] text-white"
+                  )}
+                  onClick={() => setTemplateStyle("classic")}
+                >
+                  <div className="text-center">
+                    <div className="font-semibold">Klassik</div>
+                    <div className="text-xs opacity-70 mt-1">Classic</div>
+                  </div>
+                </Button>
+                <Button
+                  variant={templateStyle === "minimal" ? "default" : "outline"}
+                  className={cn(
+                    "h-20",
+                    templateStyle === "minimal" && "bg-[#004B34] hover:bg-[#003D2B] text-white"
+                  )}
+                  onClick={() => setTemplateStyle("minimal")}
+                >
+                  <div className="text-center">
+                    <div className="font-semibold">Minimal</div>
+                    <div className="text-xs opacity-70 mt-1">Simple</div>
+                  </div>
+                </Button>
+                <Button
+                  variant={templateStyle === "elegant" ? "default" : "outline"}
+                  className={cn(
+                    "h-20",
+                    templateStyle === "elegant" && "bg-[#004B34] hover:bg-[#003D2B] text-white"
+                  )}
+                  onClick={() => setTemplateStyle("elegant")}
+                >
+                  <div className="text-center">
+                    <div className="font-semibold">Nafis</div>
+                    <div className="text-xs opacity-70 mt-1">Elegant</div>
+                  </div>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Size Selection */}
           <Card className="mb-6">
             <CardHeader>
@@ -430,94 +640,177 @@ export default function PriceTagPage() {
                     <Card className="overflow-hidden">
                       <CardContent className="p-3">
                         <div
-                          className="bg-gradient-to-br from-white to-slate-50 border-2 border-[#004B34]/20 rounded-lg overflow-hidden shadow-lg relative"
+                          className="bg-white rounded-lg overflow-hidden shadow-lg relative border"
                           style={{
                             aspectRatio: `${tagSizes[selectedSize].width} / ${tagSizes[selectedSize].height}`,
                           }}
                         >
-                          {/* Corner Decorations */}
-                          <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#004B34]" />
-                          <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#004B34]" />
-                          <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#004B34]" />
-                          <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#004B34]" />
+                          {templateStyle === "modern" && (
+                            <div className="h-full flex flex-col">
+                              {/* Store Name Header */}
+                              <div className="bg-[#004B34] px-2 py-1">
+                                <div className="text-[8px] text-white font-bold text-center tracking-wide">
+                                  {storeName.toUpperCase()}
+                                </div>
+                              </div>
 
-                          <div className="h-full flex flex-col items-center justify-center p-2">
-                            {/* Store Name with Background */}
-                            <div className="w-full bg-gradient-to-r from-[#004B34] to-[#006B4D] rounded px-2 py-0.5 mb-1">
-                              <div className="text-[8px] text-white font-semibold text-center tracking-wide">
-                                {storeName.toUpperCase()}
+                              <div className="flex-1 flex flex-col items-center justify-between p-2">
+                                {/* Product Name */}
+                                <div className={cn("text-center font-bold text-slate-800 line-clamp-2", selectedSize === "30x20" ? "text-[8px]" : "text-[9px]")}>
+                                  {product.name}
+                                </div>
+
+                                {/* Barcode */}
+                                <div className="w-full">
+                                  <canvas
+                                    ref={(el) => { canvasRefs.current[product.id] = el }}
+                                    className="w-full"
+                                    style={{ height: selectedSize === "30x20" ? "18px" : selectedSize === "40x30" ? "28px" : "35px" }}
+                                  />
+                                  <div className="text-[6px] text-center text-slate-600 mt-0.5">{product.barcode}</div>
+                                </div>
+
+                                {/* Price */}
+                                <div className="w-full bg-[#99C61E] py-1 -mx-2">
+                                  <div className={cn("text-white font-black text-center", selectedSize === "30x20" ? "text-xs" : selectedSize === "40x30" ? "text-base" : "text-xl")}>
+                                    {formatCurrency(product.price)} So&apos;m
+                                  </div>
+                                </div>
+
+                                {/* Date */}
+                                <div className="text-[5px] text-slate-400 mt-0.5">
+                                  {new Date().toLocaleDateString("ru-RU")}
+                                </div>
                               </div>
                             </div>
+                          )}
 
-                            {/* Product Name */}
-                            <div
-                              className={cn(
-                                "text-center font-bold text-slate-800 mb-1 line-clamp-2 px-1",
-                                selectedSize === "30x20" ? "text-[8px]" : "text-[10px]"
-                              )}
-                            >
-                              {product.name}
-                            </div>
-
-                            {/* Divider */}
-                            <div className="w-full h-px bg-gradient-to-r from-transparent via-[#004B34]/30 to-transparent mb-1" />
-
-                            {/* Price - Enhanced Design */}
-                            <div className="relative mb-1">
-                              <div
-                                className={cn(
-                                  "font-black text-[#004B34] relative z-10",
-                                  selectedSize === "30x20"
-                                    ? "text-sm"
-                                    : selectedSize === "40x30"
-                                      ? "text-lg"
-                                      : "text-2xl"
-                                )}
-                              >
-                                {formatCurrency(product.price)}
-                                <span
-                                  className={cn(
-                                    "ml-0.5 font-bold",
-                                    selectedSize === "30x20" ? "text-[8px]" : "text-xs"
-                                  )}
-                                >
-                                  So&apos;m
-                                </span>
+                          {templateStyle === "classic" && (
+                            <div className="h-full flex flex-col border-2 border-[#004B34] m-1">
+                              {/* Store Name */}
+                              <div className="bg-[#004B34] px-2 py-1 rounded-t">
+                                <div className="text-[7px] text-white font-bold text-center">
+                                  {storeName.toUpperCase()}
+                                </div>
                               </div>
-                              {/* Price Background Accent */}
-                              <div className="absolute inset-0 bg-yellow-100/50 rounded -z-10 blur-sm scale-110" />
-                            </div>
 
-                            {/* Barcode */}
-                            <div className="flex items-center justify-center w-full bg-white rounded px-1 py-0.5">
-                              <canvas
-                                ref={(el) => {
-                                  canvasRefs.current[product.id] = el
-                                }}
-                                className="max-w-full"
-                                style={{
-                                  height:
-                                    selectedSize === "30x20"
-                                      ? "20px"
-                                      : selectedSize === "40x30"
-                                        ? "30px"
-                                        : "40px",
-                                }}
-                              />
-                            </div>
+                              <div className="flex-1 flex flex-col items-center justify-between p-2">
+                                {/* Product Name */}
+                                <div className={cn("text-center font-bold text-slate-800 line-clamp-2", selectedSize === "30x20" ? "text-[7px]" : "text-[8px]")}>
+                                  {product.name}
+                                </div>
 
-                            {/* Date with Icon */}
-                            <div className="text-[6px] text-slate-500 mt-1 font-medium">
-                              📅 {new Date().toLocaleDateString("ru-RU", {
-                                day: "2-digit",
-                                month: "2-digit",
-                                year: "numeric",
-                              })}
+                                {/* Price */}
+                                <div className="bg-yellow-50 border border-[#004B34]/20 rounded px-2 py-1">
+                                  <div className={cn("text-[#004B34] font-black text-center", selectedSize === "30x20" ? "text-sm" : selectedSize === "40x30" ? "text-lg" : "text-2xl")}>
+                                    {formatCurrency(product.price)}
+                                  </div>
+                                  <div className="text-[6px] text-center text-[#004B34]">So&apos;m</div>
+                                </div>
+
+                                {/* Barcode */}
+                                <div className="w-full bg-white">
+                                  <canvas
+                                    ref={(el) => { canvasRefs.current[product.id] = el }}
+                                    className="w-full"
+                                    style={{ height: selectedSize === "30x20" ? "16px" : selectedSize === "40x30" ? "24px" : "30px" }}
+                                  />
+                                </div>
+
+                                {/* Date */}
+                                <div className="text-[5px] text-slate-400">
+                                  {new Date().toLocaleDateString("ru-RU")}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                        <div className="text-center text-[10px] text-slate-500 mt-2">
-                          {product.barcode}
+                          )}
+
+                          {templateStyle === "minimal" && (
+                            <div className="h-full flex flex-col items-center justify-between p-2">
+                              {/* Store Name */}
+                              <div className="w-full">
+                                <div className="text-[7px] text-[#004B34] font-bold text-center">
+                                  {storeName.toUpperCase()}
+                                </div>
+                                <div className="h-px bg-[#004B34] mt-0.5 mb-1" />
+                              </div>
+
+                              {/* Product Name */}
+                              <div className={cn("text-center font-bold text-slate-800 line-clamp-2 flex-shrink-0", selectedSize === "30x20" ? "text-[8px]" : "text-[9px]")}>
+                                {product.name}
+                              </div>
+
+                              {/* Barcode */}
+                              <div className="w-full">
+                                <canvas
+                                  ref={(el) => { canvasRefs.current[product.id] = el }}
+                                  className="w-full"
+                                  style={{ height: selectedSize === "30x20" ? "18px" : selectedSize === "40x30" ? "28px" : "35px" }}
+                                />
+                                <div className="text-[6px] text-center text-slate-500 mt-0.5">{product.barcode}</div>
+                              </div>
+
+                              {/* Price */}
+                              <div className="text-center">
+                                <div className={cn("text-[#004B34] font-black", selectedSize === "30x20" ? "text-lg" : selectedSize === "40x30" ? "text-2xl" : "text-3xl")}>
+                                  {formatCurrency(product.price)}
+                                </div>
+                                <div className="text-[7px] text-[#004B34] font-bold">So&apos;m</div>
+                              </div>
+
+                              {/* Date */}
+                              <div className="text-[5px] text-slate-400">
+                                {new Date().toLocaleDateString("ru-RU")}
+                              </div>
+                            </div>
+                          )}
+
+                          {templateStyle === "elegant" && (
+                            <div className="h-full flex flex-col p-1 relative">
+                              {/* Corner Decorations */}
+                              <div className="absolute top-1 left-1 w-2 h-2 border-t-2 border-l-2 border-[#004B34]" />
+                              <div className="absolute top-1 right-1 w-2 h-2 border-t-2 border-r-2 border-[#004B34]" />
+                              <div className="absolute bottom-1 left-1 w-2 h-2 border-b-2 border-l-2 border-[#004B34]" />
+                              <div className="absolute bottom-1 right-1 w-2 h-2 border-b-2 border-r-2 border-[#004B34]" />
+
+                              <div className="flex-1 flex flex-col items-center justify-between p-2">
+                                {/* Store Name */}
+                                <div className="text-center">
+                                  <div className="text-[8px] text-[#004B34] font-bold">
+                                    {storeName.toUpperCase()}
+                                  </div>
+                                  <div className="h-px bg-gradient-to-r from-transparent via-[#99C61E] to-transparent mt-0.5 mb-1" />
+                                </div>
+
+                                {/* Product Name */}
+                                <div className={cn("text-center font-bold text-slate-800 line-clamp-2", selectedSize === "30x20" ? "text-[7px]" : "text-[8px]")}>
+                                  {product.name}
+                                </div>
+
+                                {/* Price */}
+                                <div className="border border-[#004B34]/30 bg-slate-50 rounded px-2 py-1">
+                                  <div className={cn("text-[#004B34] font-black text-center", selectedSize === "30x20" ? "text-base" : selectedSize === "40x30" ? "text-xl" : "text-2xl")}>
+                                    {formatCurrency(product.price)} So&apos;m
+                                  </div>
+                                </div>
+
+                                {/* Barcode */}
+                                <div className="w-full">
+                                  <canvas
+                                    ref={(el) => { canvasRefs.current[product.id] = el }}
+                                    className="w-full"
+                                    style={{ height: selectedSize === "30x20" ? "16px" : selectedSize === "40x30" ? "24px" : "30px" }}
+                                  />
+                                  <div className="text-[6px] text-center text-slate-500 mt-0.5">{product.barcode}</div>
+                                </div>
+
+                                {/* Date */}
+                                <div className="text-[5px] text-slate-400 italic">
+                                  {new Date().toLocaleDateString("ru-RU")}
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
