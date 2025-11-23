@@ -51,10 +51,10 @@ const inventoryTrendData = [
 ]
 
 const inventoryHealthData = [
-  { name: "Normal", value: 65, color: "#22c55e" },
-  { name: "Kam qolgan", value: 20, color: "#eab308" },
-  { name: "Tugagan", value: 8, color: "#ef4444" },
-  { name: "Ortiqcha", value: 7, color: "#3b82f6" },
+  { name: "Normal", value: 65, color: "#99C61E" },
+  { name: "Kam qolgan", value: 20, color: "#F59E0B" },
+  { name: "Tugagan", value: 8, color: "#EF4444" },
+  { name: "Ortiqcha", value: 7, color: "#004B34" },
 ]
 
 const categoryData = [
@@ -73,9 +73,9 @@ const agingData = [
 ]
 
 const abcData = [
-  { name: "A (70%)", value: 70, color: "#22c55e" },
-  { name: "B (20%)", value: 20, color: "#3b82f6" },
-  { name: "C (10%)", value: 10, color: "#94a3b8" },
+  { name: "A (70%)", value: 70, color: "#99C61E" },
+  { name: "B (20%)", value: 20, color: "#004B34" },
+  { name: "C (10%)", value: 10, color: "#6B7280" },
 ]
 
 const turnoverData = [
@@ -88,12 +88,12 @@ const turnoverData = [
 ]
 
 const abcXyzMatrix = [
-  { abc: "A", xyz: "X", count: 25, color: "bg-green-500" },
-  { abc: "A", xyz: "Y", count: 15, color: "bg-green-400" },
-  { abc: "A", xyz: "Z", count: 8, color: "bg-green-300" },
-  { abc: "B", xyz: "X", count: 12, color: "bg-blue-500" },
-  { abc: "B", xyz: "Y", count: 18, color: "bg-blue-400" },
-  { abc: "B", xyz: "Z", count: 10, color: "bg-blue-300" },
+  { abc: "A", xyz: "X", count: 25, color: "bg-[#99C61E]" },
+  { abc: "A", xyz: "Y", count: 15, color: "bg-[#7BA817]" },
+  { abc: "A", xyz: "Z", count: 8, color: "bg-[#5D8A10]" },
+  { abc: "B", xyz: "X", count: 12, color: "bg-[#004B34]" },
+  { abc: "B", xyz: "Y", count: 18, color: "bg-[#006644]" },
+  { abc: "B", xyz: "Z", count: 10, color: "bg-[#008855]" },
   { abc: "C", xyz: "X", count: 5, color: "bg-gray-500" },
   { abc: "C", xyz: "Y", count: 8, color: "bg-gray-400" },
   { abc: "C", xyz: "Z", count: 20, color: "bg-gray-300" },
@@ -104,9 +104,9 @@ export default function DashboardPage() {
   const inventoryScore = 78
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "bg-green-500"
-    if (score >= 60) return "bg-blue-500"
-    if (score >= 40) return "bg-yellow-500"
+    if (score >= 80) return "bg-[#99C61E]"
+    if (score >= 60) return "bg-[#004B34]"
+    if (score >= 40) return "bg-amber-500"
     return "bg-red-500"
   }
 
@@ -122,10 +122,10 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-[#004B34]">
             Inventar boshqaruvi
           </h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-[#004B34]/60">
             Omboringiz holatini kuzating
           </p>
         </div>
@@ -227,58 +227,58 @@ export default function DashboardPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="border-[#99C61E]/20 hover:shadow-lg hover:shadow-[#99C61E]/10 transition-shadow">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-                <Package className="h-6 w-6 text-blue-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#004B34]/10">
+                <Package className="h-6 w-6 text-[#004B34]" />
               </div>
               <div>
-                <p className="text-sm text-slate-500">Jami SKU</p>
-                <p className="text-2xl font-bold">1,248</p>
-                <p className="text-xs text-green-600">+12 bu oy</p>
+                <p className="text-sm text-[#004B34]/60">Jami SKU</p>
+                <p className="text-2xl font-bold text-[#004B34]">1,248</p>
+                <p className="text-xs text-[#99C61E]">+12 bu oy</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-[#99C61E]/20 hover:shadow-lg hover:shadow-[#99C61E]/10 transition-shadow">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                <DollarSign className="h-6 w-6 text-green-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#99C61E]/10">
+                <DollarSign className="h-6 w-6 text-[#99C61E]" />
               </div>
               <div>
-                <p className="text-sm text-slate-500">Umumiy qiymat</p>
-                <p className="text-2xl font-bold">98.5M</p>
-                <p className="text-xs text-green-600">+8.2% o&apos;sish</p>
+                <p className="text-sm text-[#004B34]/60">Umumiy qiymat</p>
+                <p className="text-2xl font-bold text-[#004B34]">98.5M</p>
+                <p className="text-xs text-[#99C61E]">+8.2% o&apos;sish</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-[#99C61E]/20 hover:shadow-lg hover:shadow-[#99C61E]/10 transition-shadow">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
-                <TrendingUp className="h-6 w-6 text-purple-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#004B34]/10">
+                <TrendingUp className="h-6 w-6 text-[#004B34]" />
               </div>
               <div>
-                <p className="text-sm text-slate-500">Inventar aylanmasi</p>
-                <p className="text-2xl font-bold">5.3x</p>
-                <p className="text-xs text-green-600">+0.6 o&apos;tgan oydan</p>
+                <p className="text-sm text-[#004B34]/60">Inventar aylanmasi</p>
+                <p className="text-2xl font-bold text-[#004B34]">5.3x</p>
+                <p className="text-xs text-[#99C61E]">+0.6 o&apos;tgan oydan</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-red-200 hover:shadow-lg hover:shadow-red-100/50 transition-shadow">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-red-100">
-                <AlertTriangle className="h-6 w-6 text-red-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-50">
+                <AlertTriangle className="h-6 w-6 text-red-500" />
               </div>
               <div>
-                <p className="text-sm text-slate-500">Tugagan mahsulotlar</p>
-                <p className="text-2xl font-bold">23</p>
-                <p className="text-xs text-red-600">Zudlik bilan to&apos;ldiring</p>
+                <p className="text-sm text-[#004B34]/60">Tugagan mahsulotlar</p>
+                <p className="text-2xl font-bold text-[#004B34]">23</p>
+                <p className="text-xs text-red-500">Zudlik bilan to&apos;ldiring</p>
               </div>
             </div>
           </CardContent>
@@ -321,8 +321,9 @@ export default function DashboardPage() {
                       <Area
                         type="monotone"
                         dataKey="value"
-                        stroke="#3b82f6"
-                        fill="#93c5fd"
+                        stroke="#004B34"
+                        fill="#99C61E"
+                        fillOpacity={0.3}
                       />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -384,7 +385,7 @@ export default function DashboardPage() {
                           `${(value / 1000000).toFixed(1)}M UZS`
                         }
                       />
-                      <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                      <Bar dataKey="value" fill="#004B34" radius={[0, 4, 4, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -404,7 +405,7 @@ export default function DashboardPage() {
                       <XAxis dataKey="range" />
                       <YAxis />
                       <Tooltip formatter={(value: number) => `${value}%`} />
-                      <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="value" fill="#99C61E" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -414,14 +415,14 @@ export default function DashboardPage() {
 
           {/* Issue Cards */}
           <div className="grid gap-4 sm:grid-cols-3">
-            <Card className="border-l-4 border-l-red-500">
+            <Card className="border-l-4 border-l-red-500 hover:shadow-md transition-shadow">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-red-600">
                       Tugagan mahsulotlar
                     </p>
-                    <p className="text-sm text-slate-500">Zudlik bilan to&apos;ldirish kerak</p>
+                    <p className="text-sm text-[#004B34]/60">Zudlik bilan to&apos;ldirish kerak</p>
                   </div>
                   <Badge variant="destructive" className="text-lg">
                     23
@@ -429,31 +430,31 @@ export default function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="border-l-4 border-l-yellow-500">
+            <Card className="border-l-4 border-l-amber-500 hover:shadow-md transition-shadow">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-yellow-600">
+                    <p className="font-medium text-amber-600">
                       Kam qolgan mahsulotlar
                     </p>
-                    <p className="text-sm text-slate-500">Minimal darajadan past</p>
+                    <p className="text-sm text-[#004B34]/60">Minimal darajadan past</p>
                   </div>
-                  <Badge variant="warning" className="bg-yellow-500 text-lg">
+                  <Badge className="bg-amber-500 text-white text-lg">
                     45
                   </Badge>
                 </div>
               </CardContent>
             </Card>
-            <Card className="border-l-4 border-l-blue-500">
+            <Card className="border-l-4 border-l-[#004B34] hover:shadow-md transition-shadow">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-blue-600">
+                    <p className="font-medium text-[#004B34]">
                       Ortiqcha mahsulotlar
                     </p>
-                    <p className="text-sm text-slate-500">Optimal darajadan yuqori</p>
+                    <p className="text-sm text-[#004B34]/60">Optimal darajadan yuqori</p>
                   </div>
-                  <Badge className="bg-blue-500 text-lg">18</Badge>
+                  <Badge className="bg-[#004B34] text-white text-lg">18</Badge>
                 </div>
               </CardContent>
             </Card>
@@ -501,9 +502,9 @@ export default function DashboardPage() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-4 gap-2 text-center text-sm font-medium">
                     <div></div>
-                    <div className="text-green-600">X (Barqaror)</div>
-                    <div className="text-yellow-600">Y (O&apos;zgaruvchan)</div>
-                    <div className="text-red-600">Z (Nobarqaror)</div>
+                    <div className="text-[#99C61E]">X (Barqaror)</div>
+                    <div className="text-amber-600">Y (O&apos;zgaruvchan)</div>
+                    <div className="text-red-500">Z (Nobarqaror)</div>
                   </div>
                   {["A", "B", "C"].map((abc) => (
                     <div key={abc} className="grid grid-cols-4 gap-2">
@@ -554,9 +555,9 @@ export default function DashboardPage() {
                       <Line
                         type="monotone"
                         dataKey="turnover"
-                        stroke="#8b5cf6"
+                        stroke="#004B34"
                         strokeWidth={2}
-                        dot={{ fill: "#8b5cf6" }}
+                        dot={{ fill: "#99C61E" }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -587,7 +588,7 @@ export default function DashboardPage() {
                         cx="80"
                         cy="80"
                         r="70"
-                        stroke="#8b5cf6"
+                        stroke="#99C61E"
                         strokeWidth="12"
                         fill="none"
                         strokeDasharray={`${(45 / 60) * 440} 440`}
@@ -595,11 +596,11 @@ export default function DashboardPage() {
                       />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-4xl font-bold">45</span>
-                      <span className="text-sm text-slate-500">kun</span>
+                      <span className="text-4xl font-bold text-[#004B34]">45</span>
+                      <span className="text-sm text-[#004B34]/60">kun</span>
                     </div>
                   </div>
-                  <p className="mt-4 text-center text-sm text-slate-500">
+                  <p className="mt-4 text-center text-sm text-[#004B34]/60">
                     Joriy inventar 45 kun davomida yetarli
                   </p>
                 </div>

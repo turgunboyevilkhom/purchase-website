@@ -37,12 +37,12 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex h-16 items-center justify-between bg-slate-900 px-4 shadow-lg lg:pl-[272px]">
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between bg-gradient-to-r from-[#004B34] to-[#003D2B] px-4 shadow-lg lg:pl-[272px]">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-slate-800 lg:hidden"
+            className="text-white hover:bg-[#99C61E]/20 lg:hidden"
             onClick={onMenuClick}
           >
             <Menu className="h-6 w-6" />
@@ -51,7 +51,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
         <div className="flex items-center gap-3">
           <Link href="/yetib-kelgan/add">
-            <Button className="hidden gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 sm:flex">
+            <Button className="hidden gap-2 bg-gradient-to-r from-[#99C61E] to-[#7BA817] text-[#004B34] font-semibold hover:from-[#AAD72F] hover:to-[#8BB918] shadow-lg shadow-[#99C61E]/20 sm:flex">
               <Plus className="h-4 w-4" />
               Yangi tovar qoshish
             </Button>
@@ -59,7 +59,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           <Link href="/yetkazib-beruvchilar/add">
             <Button
               variant="outline"
-              className="hidden gap-2 border-slate-600 bg-transparent text-white hover:bg-slate-800 sm:flex"
+              className="hidden gap-2 border-[#99C61E]/50 bg-transparent text-white hover:bg-[#99C61E]/10 hover:border-[#99C61E] sm:flex"
             >
               <Plus className="h-4 w-4" />
               Yangi taminotchi qoshish
@@ -73,7 +73,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                 className="relative h-10 w-10 rounded-full"
               >
                 <Avatar>
-                  <AvatarFallback className="bg-blue-600 text-white">
+                  <AvatarFallback className="bg-[#99C61E] text-[#004B34]">
                     <User className="h-5 w-5" />
                   </AvatarFallback>
                 </Avatar>
@@ -84,7 +84,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">Admin</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    admin@bis.uz
+                    admin@kometa.uz
                   </p>
                 </div>
               </DropdownMenuLabel>

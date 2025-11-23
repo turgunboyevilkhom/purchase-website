@@ -39,21 +39,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#004B34] via-[#003D2B] to-[#002E20] p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-2xl font-bold text-white shadow-lg shadow-blue-500/30">
-            BIS
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#99C61E] to-[#7BA817] text-3xl font-bold text-[#004B34] shadow-xl shadow-[#99C61E]/30">
+            K
           </div>
-          <h1 className="text-2xl font-bold text-white">
-            Business Intelligence System
+          <h1 className="text-3xl font-bold text-white tracking-wide">
+            Kometa
           </h1>
-          <p className="text-slate-400">Tizimga kirish</p>
+          <p className="text-[#99C61E]/80 mt-1">Biznes boshqaruv tizimi</p>
         </div>
 
         {/* Login Card */}
-        <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
+        <Card className="border-[#99C61E]/20 bg-[#003D2B]/80 backdrop-blur-sm shadow-2xl">
           <CardHeader className="space-y-1 pb-4">
             <h2 className="text-center text-xl font-semibold text-white">
               Xush kelibsiz!
@@ -67,7 +67,7 @@ export default function LoginPage() {
                 </div>
               )}
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-slate-300">
+                <Label htmlFor="username" className="text-white/80">
                   Login
                 </Label>
                 <Input
@@ -75,12 +75,12 @@ export default function LoginPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Foydalanuvchi nomi"
-                  className="border-slate-600 bg-slate-700/50 text-white placeholder:text-slate-400"
+                  className="border-[#99C61E]/30 bg-[#002E20] text-white placeholder:text-white/40 focus:border-[#99C61E] focus:ring-[#99C61E]/20"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-slate-300">
+                <Label htmlFor="password" className="text-white/80">
                   Parol
                 </Label>
                 <div className="relative">
@@ -90,13 +90,13 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Parolingizni kiriting"
-                    className="border-slate-600 bg-slate-700/50 pr-10 text-white placeholder:text-slate-400"
+                    className="border-[#99C61E]/30 bg-[#002E20] pr-10 text-white placeholder:text-white/40 focus:border-[#99C61E] focus:ring-[#99C61E]/20"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-[#99C61E]"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -108,7 +108,7 @@ export default function LoginPage() {
               </div>
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
+                className="w-full bg-gradient-to-r from-[#99C61E] to-[#7BA817] text-[#004B34] font-semibold hover:from-[#AAD72F] hover:to-[#8BB918] shadow-lg shadow-[#99C61E]/20"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -122,24 +122,24 @@ export default function LoginPage() {
               </Button>
             </CardContent>
           </form>
-          <CardFooter className="flex-col gap-2 border-t border-slate-700 pt-4">
-            <div className="text-center text-sm text-slate-400">
+          <CardFooter className="flex-col gap-2 border-t border-[#99C61E]/20 pt-4">
+            <div className="text-center text-sm text-white/60">
               Demo hisob ma&apos;lumotlari:
             </div>
             <div className="flex gap-4 text-sm">
-              <span className="text-slate-500">
-                Login: <span className="text-blue-400">bobs</span>
+              <span className="text-white/50">
+                Login: <span className="text-[#99C61E]">bobs</span>
               </span>
-              <span className="text-slate-500">
-                Parol: <span className="text-blue-400">bobs2025</span>
+              <span className="text-white/50">
+                Parol: <span className="text-[#99C61E]">bobs2025</span>
               </span>
             </div>
           </CardFooter>
         </Card>
 
         {/* Footer */}
-        <p className="mt-8 text-center text-sm text-slate-500">
-          © 2025 Business Intelligence System. Barcha huquqlar himoyalangan.
+        <p className="mt-8 text-center text-sm text-white/40">
+          © 2025 Kometa. Barcha huquqlar himoyalangan.
         </p>
       </div>
     </div>

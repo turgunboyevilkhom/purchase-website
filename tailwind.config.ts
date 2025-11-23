@@ -50,6 +50,13 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Kometa brand colors
+        kometa: {
+          primary: "#004B34",
+          secondary: "#99C61E",
+          light: "#E8F5E9",
+          dark: "#00331F",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
