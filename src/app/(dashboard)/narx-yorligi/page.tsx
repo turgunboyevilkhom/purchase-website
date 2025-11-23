@@ -172,53 +172,61 @@ export default function PriceTagPage() {
       })
 
       if (templateStyle === "modern") {
-        // Modern Template - Clean and professional
+        // Modern Template - Clean and professional with vertical store name
+        // Store name - Vertical on the left side
         pdf.setFillColor(0, 75, 52) // #004B34
-        pdf.rect(0, 0, size.width, 6, "F")
+        pdf.rect(0, 0, 8, size.height, "F")
 
         pdf.setFont("helvetica", "bold")
         pdf.setFontSize(8)
         pdf.setTextColor(255, 255, 255)
-        pdf.text(storeName.toUpperCase(), size.width / 2, 4, { align: "center" })
+        pdf.text(storeName.toUpperCase(), 4, size.height / 2, {
+          align: "center",
+          angle: 90
+        })
 
-        // Product name
-        pdf.setFontSize(selectedSize === "30x20" ? 7 : selectedSize === "40x30" ? 8 : 9)
+        // Product name at the top
+        pdf.setFontSize(selectedSize === "30x20" ? 8 : selectedSize === "40x30" ? 10 : 12)
         pdf.setTextColor(0, 0, 0)
         pdf.setFont("helvetica", "bold")
-        const productNameLines = pdf.splitTextToSize(product.name, size.width - 4)
+        const productNameLines = pdf.splitTextToSize(product.name, size.width - 12)
         const nameLinesCount = Math.min(productNameLines.length, 2)
-        pdf.text(productNameLines.slice(0, nameLinesCount), size.width / 2, 9, { align: "center" })
+        pdf.text(productNameLines.slice(0, nameLinesCount), size.width / 2 + 4, 4, { align: "center" })
+
+        // Price - Large and centered
+        const priceY = selectedSize === "30x20" ? 12 : selectedSize === "40x30" ? 15 : 18
+        pdf.setFontSize(selectedSize === "30x20" ? 24 : selectedSize === "40x30" ? 32 : 40)
+        pdf.setFont("helvetica", "bold")
+        pdf.setTextColor(0, 0, 0)
+        const priceText = `${formatCurrency(product.price)}`
+        pdf.text(priceText, size.width / 2 + 4, priceY, { align: "center" })
 
         // Barcode with improved scanning area
         if (canvas) {
-          const barcodeY = selectedSize === "30x20" ? 11 : selectedSize === "40x30" ? 13 : 14
-          const barcodeHeight = selectedSize === "30x20" ? 6 : selectedSize === "40x30" ? 10 : 13
-          const barcodeWidth = size.width - 3
+          const barcodeY = selectedSize === "30x20" ? 15 : selectedSize === "40x30" ? 20 : 24
+          const barcodeHeight = selectedSize === "30x20" ? 8 : selectedSize === "40x30" ? 12 : 15
+          const barcodeWidth = size.width - 12
 
           // White background for better contrast
           pdf.setFillColor(255, 255, 255)
-          pdf.rect(1.5, barcodeY - 1, barcodeWidth, barcodeHeight + 2, "F")
+          pdf.rect(9, barcodeY - 1, barcodeWidth, barcodeHeight + 2, "F")
 
           const imgData = canvas.toDataURL("image/png")
-          pdf.addImage(imgData, "PNG", 1.5, barcodeY, barcodeWidth, barcodeHeight)
+          pdf.addImage(imgData, "PNG", 9, barcodeY, barcodeWidth, barcodeHeight)
         }
 
-        // Price
-        const priceY = selectedSize === "30x20" ? size.height - 5 : selectedSize === "40x30" ? size.height - 6 : size.height - 7
-        pdf.setFillColor(153, 198, 30) // #99C61E
-        pdf.rect(0, priceY - 2, size.width, selectedSize === "30x20" ? 4 : 5, "F")
-
-        pdf.setFontSize(selectedSize === "30x20" ? 12 : selectedSize === "40x30" ? 16 : 20)
-        pdf.setFont("helvetica", "bold")
-        pdf.setTextColor(255, 255, 255)
-        const priceText = `${formatCurrency(product.price)} So'm`
-        pdf.text(priceText, size.width / 2, priceY + 1.5, { align: "center" })
+        // Code in bottom right
+        pdf.setFontSize(7)
+        pdf.setFont("helvetica", "normal")
+        pdf.setTextColor(0, 0, 0)
+        const code = product.barcode.slice(-3)
+        pdf.text(`Code:${code}`, size.width - 2, size.height - 1, { align: "right" })
 
         // Date
         pdf.setFontSize(5)
         pdf.setFont("helvetica", "normal")
         pdf.setTextColor(100, 100, 100)
-        pdf.text(date, size.width / 2, size.height - 0.5, { align: "center" })
+        pdf.text(date, size.width / 2, size.height - 1, { align: "center" })
 
       } else if (templateStyle === "classic") {
         // Classic Template - Traditional design with borders
@@ -625,18 +633,31 @@ export default function PriceTagPage() {
                           }}
                         >
                           {templateStyle === "modern" && (
-                            <div className="h-full flex flex-col">
-                              {/* Store Name Header */}
-                              <div className="bg-[#004B34] px-2 py-1">
-                                <div className="text-[8px] text-white font-bold text-center tracking-wide">
+                            <div className="h-full flex">
+                              {/* Store Name - Vertical on left */}
+                              <div className="bg-[#004B34] flex items-center justify-center" style={{ width: "15%" }}>
+                                <div
+                                  className="text-white font-bold text-center tracking-wide whitespace-nowrap"
+                                  style={{
+                                    writingMode: "vertical-rl",
+                                    transform: "rotate(180deg)",
+                                    fontSize: selectedSize === "30x20" ? "8px" : "10px"
+                                  }}
+                                >
                                   {storeName.toUpperCase()}
                                 </div>
                               </div>
 
-                              <div className="flex-1 flex flex-col items-center justify-between p-2">
+                              {/* Main content area */}
+                              <div className="flex-1 flex flex-col items-center justify-between p-2 relative">
                                 {/* Product Name */}
-                                <div className={cn("text-center font-bold text-slate-800 line-clamp-2", selectedSize === "30x20" ? "text-[8px]" : "text-[9px]")}>
+                                <div className={cn("text-center font-bold text-slate-800 line-clamp-2", selectedSize === "30x20" ? "text-[8px]" : "text-[10px]")}>
                                   {product.name}
+                                </div>
+
+                                {/* Price - Large and centered */}
+                                <div className={cn("text-black font-black text-center", selectedSize === "30x20" ? "text-2xl" : selectedSize === "40x30" ? "text-3xl" : "text-4xl")}>
+                                  {formatCurrency(product.price)}
                                 </div>
 
                                 {/* Barcode - Improved for scanning */}
@@ -644,19 +665,17 @@ export default function PriceTagPage() {
                                   <canvas
                                     ref={(el) => { canvasRefs.current[product.id] = el }}
                                     className="w-full"
-                                    style={{ height: selectedSize === "30x20" ? "24px" : selectedSize === "40x30" ? "38px" : "48px" }}
+                                    style={{ height: selectedSize === "30x20" ? "28px" : selectedSize === "40x30" ? "42px" : "52px" }}
                                   />
                                 </div>
 
-                                {/* Price */}
-                                <div className="w-full bg-[#99C61E] py-1 -mx-2">
-                                  <div className={cn("text-white font-black text-center", selectedSize === "30x20" ? "text-xs" : selectedSize === "40x30" ? "text-base" : "text-xl")}>
-                                    {formatCurrency(product.price)} So&apos;m
-                                  </div>
+                                {/* Code in bottom right */}
+                                <div className="absolute bottom-1 right-1 text-[7px] text-slate-800">
+                                  Code:{product.barcode.slice(-3)}
                                 </div>
 
                                 {/* Date */}
-                                <div className="text-[5px] text-slate-400 mt-0.5">
+                                <div className="text-[5px] text-slate-400">
                                   {new Date().toLocaleDateString("ru-RU")}
                                 </div>
                               </div>
