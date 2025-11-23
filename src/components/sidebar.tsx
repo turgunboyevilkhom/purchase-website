@@ -134,7 +134,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-64 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 transition-transform duration-300 lg:translate-x-0",
+          "fixed left-0 top-0 z-50 h-full w-64 bg-gradient-to-b from-[#004B34] via-[#003D2B] to-[#002E20] transition-transform duration-300 lg:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -142,14 +142,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           {/* Logo */}
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 font-bold text-white shadow-lg">
-                BIS
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#99C61E] to-[#7BA817] font-bold text-[#004B34] shadow-lg shadow-[#99C61E]/20">
+                K
               </div>
               <div>
-                <h1 className="text-sm font-semibold text-white">
-                  Business Intelligence
+                <h1 className="text-lg font-bold text-white tracking-wide">
+                  Kometa
                 </h1>
-                <p className="text-xs text-slate-400">System v1.0</p>
+                <p className="text-xs text-[#99C61E]/80">Biznes tizimi</p>
               </div>
             </div>
             <Button
@@ -167,7 +167,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-start gap-2 text-slate-400 hover:bg-slate-800/50 hover:text-white"
+              className="w-full justify-start gap-2 text-white/60 hover:bg-[#99C61E]/10 hover:text-[#99C61E]"
               onClick={() => setShowSettings(!showSettings)}
             >
               {showSettings ? (
@@ -215,8 +215,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                           className={cn(
                             "flex flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
                             active
-                              ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25"
-                              : "text-slate-300 hover:bg-slate-800/50 hover:text-white"
+                              ? "bg-gradient-to-r from-[#99C61E] to-[#7BA817] text-[#004B34] shadow-lg shadow-[#99C61E]/25"
+                              : "text-white/80 hover:bg-[#99C61E]/10 hover:text-white"
                           )}
                         >
                           <Icon className="h-5 w-5" />
@@ -235,8 +235,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                           className={cn(
                             "flex flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
                             active
-                              ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25"
-                              : "text-slate-300 hover:bg-slate-800/50 hover:text-white"
+                              ? "bg-gradient-to-r from-[#99C61E] to-[#7BA817] text-[#004B34] shadow-lg shadow-[#99C61E]/25"
+                              : "text-white/80 hover:bg-[#99C61E]/10 hover:text-white"
                           )}
                         >
                           <Icon className="h-5 w-5" />
@@ -247,7 +247,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
                     {/* Submenu */}
                     {hasSubmenu && isExpanded && (
-                      <div className="ml-4 mt-1 space-y-1 border-l border-slate-700 pl-4">
+                      <div className="ml-4 mt-1 space-y-1 border-l border-[#99C61E]/30 pl-4">
                         {item.submenu?.map((sub) => {
                           const SubIcon = sub.icon
                           return (
@@ -258,8 +258,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                               className={cn(
                                 "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
                                 isActive(sub.href)
-                                  ? "bg-blue-600/20 text-blue-400"
-                                  : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
+                                  ? "bg-[#99C61E]/20 text-[#99C61E]"
+                                  : "text-white/60 hover:bg-[#99C61E]/10 hover:text-white"
                               )}
                             >
                               <SubIcon className="h-4 w-4" />
@@ -276,9 +276,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </ScrollArea>
 
           {/* Footer */}
-          <div className="border-t border-slate-700/50 p-4">
-            <p className="text-center text-xs text-slate-500">
-              © 2025 BIS System
+          <div className="border-t border-[#99C61E]/20 p-4">
+            <p className="text-center text-xs text-white/50">
+              © 2025 Kometa
             </p>
           </div>
         </div>

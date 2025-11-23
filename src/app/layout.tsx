@@ -2,8 +2,8 @@ import type { Metadata } from "next"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "BIS - Business Intelligence System",
-  description: "Inventory management and business intelligence system",
+  title: "Kometa - Biznes Boshqaruv Tizimi",
+  description: "Kometa - zamonaviy inventar va biznes boshqaruv tizimi",
 }
 
 export default function RootLayout({
