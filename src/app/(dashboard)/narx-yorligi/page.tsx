@@ -171,34 +171,84 @@ export default function PriceTagPage() {
 
       const canvas = canvasRefs.current[product.id]
 
-      // Set font
-      pdf.setFont("helvetica", "normal")
+      // Draw corner decorations
+      pdf.setDrawColor(0, 75, 52) // #004B34
+      pdf.setLineWidth(0.3)
 
-      // Store name at top
+      // Top-left corner
+      pdf.line(1, 1, 3, 1)
+      pdf.line(1, 1, 1, 3)
+
+      // Top-right corner
+      pdf.line(size.width - 3, 1, size.width - 1, 1)
+      pdf.line(size.width - 1, 1, size.width - 1, 3)
+
+      // Bottom-left corner
+      pdf.line(1, size.height - 1, 3, size.height - 1)
+      pdf.line(1, size.height - 3, 1, size.height - 1)
+
+      // Bottom-right corner
+      pdf.line(size.width - 3, size.height - 1, size.width - 1, size.height - 1)
+      pdf.line(size.width - 1, size.height - 3, size.width - 1, size.height - 1)
+
+      // Store name header with background
+      pdf.setFillColor(0, 75, 52) // #004B34
+      pdf.roundedRect(2, 2, size.width - 4, 4, 0.5, 0.5, "F")
+
+      pdf.setFont("helvetica", "bold")
       pdf.setFontSize(6)
-      pdf.setTextColor(100, 100, 100)
-      pdf.text(storeName, size.width / 2, 3, { align: "center" })
+      pdf.setTextColor(255, 255, 255)
+      pdf.text(storeName.toUpperCase(), size.width / 2, 4.5, { align: "center" })
 
       // Product name
       pdf.setFontSize(selectedSize === "30x20" ? 6 : selectedSize === "40x30" ? 7 : 8)
       pdf.setTextColor(0, 0, 0)
+      pdf.setFont("helvetica", "bold")
       const productNameLines = pdf.splitTextToSize(product.name, size.width - 6)
       const nameLinesCount = Math.min(productNameLines.length, selectedSize === "30x20" ? 1 : 2)
-      pdf.text(productNameLines.slice(0, nameLinesCount), size.width / 2, 6, { align: "center" })
+      pdf.text(productNameLines.slice(0, nameLinesCount), size.width / 2, 8, { align: "center" })
 
-      // Price
-      const priceY = selectedSize === "30x20" ? 11 : selectedSize === "40x30" ? 14 : 16
-      pdf.setFontSize(selectedSize === "30x20" ? 12 : selectedSize === "40x30" ? 14 : 18)
-      pdf.setFont("helvetica", "bold")
+      // Divider line
+      const dividerY = selectedSize === "30x20" ? 10 : selectedSize === "40x30" ? 11.5 : 12
+      pdf.setDrawColor(0, 75, 52)
+      pdf.setLineWidth(0.1)
+      const lineStart = size.width * 0.2
+      const lineEnd = size.width * 0.8
+      pdf.line(lineStart, dividerY, lineEnd, dividerY)
+
+      // Price with yellow background
+      const priceY = selectedSize === "30x20" ? 13 : selectedSize === "40x30" ? 16 : 18
       const priceParts = formatPrice(product.price)
       const priceText = `${priceParts.join(" ")} ${product.unit}`
+
+      // Yellow background for price
+      pdf.setFillColor(254, 252, 232) // Light yellow
+      const textWidth = pdf.getTextWidth(priceText)
+      pdf.roundedRect(
+        (size.width - textWidth - 2) / 2,
+        priceY - 3,
+        textWidth + 2,
+        3.5,
+        0.5,
+        0.5,
+        "F"
+      )
+
+      pdf.setFontSize(selectedSize === "30x20" ? 12 : selectedSize === "40x30" ? 16 : 20)
+      pdf.setFont("helvetica", "bold")
+      pdf.setTextColor(0, 75, 52) // #004B34
       pdf.text(priceText, size.width / 2, priceY, { align: "center" })
 
-      // Barcode
+      // Barcode with white background
       if (canvas) {
-        const barcodeY = selectedSize === "30x20" ? 14 : selectedSize === "40x30" ? 18 : 22
+        const barcodeY = selectedSize === "30x20" ? 15 : selectedSize === "40x30" ? 20 : 24
         const barcodeHeight = selectedSize === "30x20" ? 4 : selectedSize === "40x30" ? 8 : 12
         const barcodeWidth = size.width - 4
+
+        // White background for barcode
+        pdf.setFillColor(255, 255, 255)
+        pdf.roundedRect(2, barcodeY - 0.5, barcodeWidth, barcodeHeight + 1, 0.5, 0.5, "F")
+
         const imgData = canvas.toDataURL("image/png")
         pdf.addImage(imgData, "PNG", 2, barcodeY, barcodeWidth, barcodeHeight)
       }
@@ -208,13 +258,11 @@ export default function PriceTagPage() {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
       })
       pdf.setFontSize(5)
       pdf.setFont("helvetica", "normal")
       pdf.setTextColor(100, 100, 100)
-      pdf.text(date, size.width / 2, size.height - 2, { align: "center" })
+      pdf.text(`📅 ${date}`, size.width / 2, size.height - 2, { align: "center" })
     })
 
     // Save or print
@@ -382,66 +430,90 @@ export default function PriceTagPage() {
                     <Card className="overflow-hidden">
                       <CardContent className="p-3">
                         <div
-                          className="bg-white border-2 border-slate-200 rounded-lg p-2 flex flex-col items-center justify-center"
+                          className="bg-gradient-to-br from-white to-slate-50 border-2 border-[#004B34]/20 rounded-lg overflow-hidden shadow-lg relative"
                           style={{
                             aspectRatio: `${tagSizes[selectedSize].width} / ${tagSizes[selectedSize].height}`,
                           }}
                         >
-                          {/* Store Name */}
-                          <div className="text-[8px] text-slate-500 mb-1">{storeName}</div>
+                          {/* Corner Decorations */}
+                          <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#004B34]" />
+                          <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#004B34]" />
+                          <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#004B34]" />
+                          <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#004B34]" />
 
-                          {/* Product Name */}
-                          <div
-                            className={cn(
-                              "text-center font-semibold text-slate-900 mb-1 line-clamp-2",
-                              selectedSize === "30x20" ? "text-[8px]" : "text-[10px]"
-                            )}
-                          >
-                            {product.name}
-                          </div>
+                          <div className="h-full flex flex-col items-center justify-center p-2">
+                            {/* Store Name with Background */}
+                            <div className="w-full bg-gradient-to-r from-[#004B34] to-[#006B4D] rounded px-2 py-0.5 mb-1">
+                              <div className="text-[8px] text-white font-semibold text-center tracking-wide">
+                                {storeName.toUpperCase()}
+                              </div>
+                            </div>
 
-                          {/* Price */}
-                          <div
-                            className={cn(
-                              "font-bold text-slate-900 mb-1",
-                              selectedSize === "30x20"
-                                ? "text-sm"
-                                : selectedSize === "40x30"
-                                  ? "text-base"
-                                  : "text-lg"
-                            )}
-                          >
-                            {formatCurrency(product.price)}{" "}
-                            <span className="text-xs">So&apos;m</span>
-                          </div>
+                            {/* Product Name */}
+                            <div
+                              className={cn(
+                                "text-center font-bold text-slate-800 mb-1 line-clamp-2 px-1",
+                                selectedSize === "30x20" ? "text-[8px]" : "text-[10px]"
+                              )}
+                            >
+                              {product.name}
+                            </div>
 
-                          {/* Barcode */}
-                          <div className="flex items-center justify-center w-full">
-                            <canvas
-                              ref={(el) => {
-                                canvasRefs.current[product.id] = el
-                              }}
-                              className="max-w-full"
-                              style={{
-                                height:
+                            {/* Divider */}
+                            <div className="w-full h-px bg-gradient-to-r from-transparent via-[#004B34]/30 to-transparent mb-1" />
+
+                            {/* Price - Enhanced Design */}
+                            <div className="relative mb-1">
+                              <div
+                                className={cn(
+                                  "font-black text-[#004B34] relative z-10",
                                   selectedSize === "30x20"
-                                    ? "20px"
+                                    ? "text-sm"
                                     : selectedSize === "40x30"
-                                      ? "30px"
-                                      : "40px",
-                              }}
-                            />
-                          </div>
+                                      ? "text-lg"
+                                      : "text-2xl"
+                                )}
+                              >
+                                {formatCurrency(product.price)}
+                                <span
+                                  className={cn(
+                                    "ml-0.5 font-bold",
+                                    selectedSize === "30x20" ? "text-[8px]" : "text-xs"
+                                  )}
+                                >
+                                  So&apos;m
+                                </span>
+                              </div>
+                              {/* Price Background Accent */}
+                              <div className="absolute inset-0 bg-yellow-100/50 rounded -z-10 blur-sm scale-110" />
+                            </div>
 
-                          {/* Date */}
-                          <div className="text-[6px] text-slate-400 mt-1">
-                            {new Date().toLocaleDateString("ru-RU", {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                            {/* Barcode */}
+                            <div className="flex items-center justify-center w-full bg-white rounded px-1 py-0.5">
+                              <canvas
+                                ref={(el) => {
+                                  canvasRefs.current[product.id] = el
+                                }}
+                                className="max-w-full"
+                                style={{
+                                  height:
+                                    selectedSize === "30x20"
+                                      ? "20px"
+                                      : selectedSize === "40x30"
+                                        ? "30px"
+                                        : "40px",
+                                }}
+                              />
+                            </div>
+
+                            {/* Date with Icon */}
+                            <div className="text-[6px] text-slate-500 mt-1 font-medium">
+                              📅 {new Date().toLocaleDateString("ru-RU", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                              })}
+                            </div>
                           </div>
                         </div>
                         <div className="text-center text-[10px] text-slate-500 mt-2">
