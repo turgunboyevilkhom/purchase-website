@@ -6,14 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import jsPDF from "jspdf"
 import JsBarcode from "jsbarcode"
@@ -144,11 +136,13 @@ export default function PriceTagPage() {
         try {
           JsBarcode(canvas, product.barcode, {
             format: "EAN13",
-            width: 2,
-            height: 40,
+            width: 3,
+            height: 60,
             displayValue: true,
-            fontSize: 12,
-            margin: 5,
+            fontSize: 14,
+            margin: 10,
+            background: "#ffffff",
+            lineColor: "#000000",
           })
         } catch (error) {
           console.error("Error generating barcode:", error)
@@ -195,42 +189,36 @@ export default function PriceTagPage() {
         const nameLinesCount = Math.min(productNameLines.length, 2)
         pdf.text(productNameLines.slice(0, nameLinesCount), size.width / 2, 9, { align: "center" })
 
-        // Barcode
+        // Barcode with improved scanning area
         if (canvas) {
-          const barcodeY = selectedSize === "30x20" ? 12 : selectedSize === "40x30" ? 14 : 15
-          const barcodeHeight = selectedSize === "30x20" ? 5 : selectedSize === "40x30" ? 8 : 10
-          const barcodeWidth = size.width - 4
+          const barcodeY = selectedSize === "30x20" ? 11 : selectedSize === "40x30" ? 13 : 14
+          const barcodeHeight = selectedSize === "30x20" ? 6 : selectedSize === "40x30" ? 10 : 13
+          const barcodeWidth = size.width - 3
 
+          // White background for better contrast
           pdf.setFillColor(255, 255, 255)
-          pdf.rect(2, barcodeY - 0.5, barcodeWidth, barcodeHeight + 1, "F")
+          pdf.rect(1.5, barcodeY - 1, barcodeWidth, barcodeHeight + 2, "F")
 
           const imgData = canvas.toDataURL("image/png")
-          pdf.addImage(imgData, "PNG", 2, barcodeY, barcodeWidth, barcodeHeight)
+          pdf.addImage(imgData, "PNG", 1.5, barcodeY, barcodeWidth, barcodeHeight)
         }
 
-        // Barcode text
-        pdf.setFontSize(6)
-        pdf.setFont("helvetica", "normal")
-        pdf.setTextColor(0, 0, 0)
-        const barcodeTextY = selectedSize === "30x20" ? 18 : selectedSize === "40x30" ? 23 : 26
-        pdf.text(product.barcode, size.width / 2, barcodeTextY, { align: "center" })
-
         // Price
-        const priceY = selectedSize === "30x20" ? size.height - 6 : selectedSize === "40x30" ? size.height - 6 : size.height - 7
+        const priceY = selectedSize === "30x20" ? size.height - 5 : selectedSize === "40x30" ? size.height - 6 : size.height - 7
         pdf.setFillColor(153, 198, 30) // #99C61E
-        pdf.rect(0, priceY - 2, size.width, selectedSize === "30x20" ? 5 : 6, "F")
+        pdf.rect(0, priceY - 2, size.width, selectedSize === "30x20" ? 4 : 5, "F")
 
-        pdf.setFontSize(selectedSize === "30x20" ? 14 : selectedSize === "40x30" ? 18 : 22)
+        pdf.setFontSize(selectedSize === "30x20" ? 12 : selectedSize === "40x30" ? 16 : 20)
         pdf.setFont("helvetica", "bold")
         pdf.setTextColor(255, 255, 255)
         const priceText = `${formatCurrency(product.price)} So'm`
-        pdf.text(priceText, size.width / 2, priceY + 2, { align: "center" })
+        pdf.text(priceText, size.width / 2, priceY + 1.5, { align: "center" })
 
         // Date
         pdf.setFontSize(5)
         pdf.setFont("helvetica", "normal")
         pdf.setTextColor(100, 100, 100)
-        pdf.text(date, size.width / 2, size.height - 1, { align: "center" })
+        pdf.text(date, size.width / 2, size.height - 0.5, { align: "center" })
 
       } else if (templateStyle === "classic") {
         // Classic Template - Traditional design with borders
@@ -265,24 +253,25 @@ export default function PriceTagPage() {
         const priceText = `${formatCurrency(product.price)} So'm`
         pdf.text(priceText, size.width / 2, priceY + 1, { align: "center" })
 
-        // Barcode
+        // Barcode with improved scanning area
         if (canvas) {
-          const barcodeY = selectedSize === "30x20" ? 18 : selectedSize === "40x30" ? 23 : 26
-          const barcodeHeight = selectedSize === "30x20" ? 4 : selectedSize === "40x30" ? 6 : 8
-          const barcodeWidth = size.width - 6
+          const barcodeY = selectedSize === "30x20" ? 17 : selectedSize === "40x30" ? 21 : 24
+          const barcodeHeight = selectedSize === "30x20" ? 5 : selectedSize === "40x30" ? 8 : 11
+          const barcodeWidth = size.width - 5
 
+          // White background for better contrast
           pdf.setFillColor(255, 255, 255)
-          pdf.rect(3, barcodeY - 0.5, barcodeWidth, barcodeHeight + 1, "F")
+          pdf.rect(2.5, barcodeY - 1, barcodeWidth, barcodeHeight + 2, "F")
 
           const imgData = canvas.toDataURL("image/png")
-          pdf.addImage(imgData, "PNG", 3, barcodeY, barcodeWidth, barcodeHeight)
+          pdf.addImage(imgData, "PNG", 2.5, barcodeY, barcodeWidth, barcodeHeight)
         }
 
         // Date
         pdf.setFontSize(5)
         pdf.setFont("helvetica", "normal")
         pdf.setTextColor(100, 100, 100)
-        pdf.text(date, size.width / 2, size.height - 1.5, { align: "center" })
+        pdf.text(date, size.width / 2, size.height - 0.5, { align: "center" })
 
       } else if (templateStyle === "minimal") {
         // Minimal Template - Simple and clean
@@ -302,22 +291,19 @@ export default function PriceTagPage() {
         const productNameLines = pdf.splitTextToSize(product.name, size.width - 4)
         pdf.text(productNameLines.slice(0, 2), size.width / 2, 7, { align: "center" })
 
-        // Barcode
+        // Barcode with improved scanning area
         if (canvas) {
-          const barcodeY = selectedSize === "30x20" ? 11 : selectedSize === "40x30" ? 13 : 14
-          const barcodeHeight = selectedSize === "30x20" ? 5 : selectedSize === "40x30" ? 8 : 10
-          const barcodeWidth = size.width - 4
+          const barcodeY = selectedSize === "30x20" ? 10 : selectedSize === "40x30" ? 12 : 13
+          const barcodeHeight = selectedSize === "30x20" ? 6 : selectedSize === "40x30" ? 10 : 13
+          const barcodeWidth = size.width - 3
+
+          // White background for better contrast
+          pdf.setFillColor(255, 255, 255)
+          pdf.rect(1.5, barcodeY - 1, barcodeWidth, barcodeHeight + 2, "F")
 
           const imgData = canvas.toDataURL("image/png")
-          pdf.addImage(imgData, "PNG", 2, barcodeY, barcodeWidth, barcodeHeight)
+          pdf.addImage(imgData, "PNG", 1.5, barcodeY, barcodeWidth, barcodeHeight)
         }
-
-        // Barcode text
-        pdf.setFontSize(6)
-        pdf.setFont("helvetica", "normal")
-        pdf.setTextColor(80, 80, 80)
-        const barcodeTextY = selectedSize === "30x20" ? 17 : selectedSize === "40x30" ? 22 : 25
-        pdf.text(product.barcode, size.width / 2, barcodeTextY, { align: "center" })
 
         // Price
         const priceY = selectedSize === "30x20" ? size.height - 4 : selectedSize === "40x30" ? size.height - 5 : size.height - 6
@@ -382,25 +368,19 @@ export default function PriceTagPage() {
         const priceText = `${formatCurrency(product.price)} So'm`
         pdf.text(priceText, size.width / 2, priceY + 1, { align: "center" })
 
-        // Barcode
+        // Barcode with improved scanning area
         if (canvas) {
-          const barcodeY = selectedSize === "30x20" ? 18 : selectedSize === "40x30" ? 23 : 26
-          const barcodeHeight = selectedSize === "30x20" ? 4 : selectedSize === "40x30" ? 6 : 8
-          const barcodeWidth = size.width - 8
+          const barcodeY = selectedSize === "30x20" ? 17 : selectedSize === "40x30" ? 21 : 25
+          const barcodeHeight = selectedSize === "30x20" ? 5 : selectedSize === "40x30" ? 9 : 11
+          const barcodeWidth = size.width - 7
 
+          // White background for better contrast
           pdf.setFillColor(255, 255, 255)
-          pdf.rect(4, barcodeY - 0.5, barcodeWidth, barcodeHeight + 1, "F")
+          pdf.rect(3.5, barcodeY - 1, barcodeWidth, barcodeHeight + 2, "F")
 
           const imgData = canvas.toDataURL("image/png")
-          pdf.addImage(imgData, "PNG", 4, barcodeY, barcodeWidth, barcodeHeight)
+          pdf.addImage(imgData, "PNG", 3.5, barcodeY, barcodeWidth, barcodeHeight)
         }
-
-        // Barcode text
-        pdf.setFontSize(6)
-        pdf.setFont("helvetica", "normal")
-        pdf.setTextColor(80, 80, 80)
-        const barcodeTextY = selectedSize === "30x20" ? 23 : selectedSize === "40x30" ? 29 : 35
-        pdf.text(product.barcode, size.width / 2, barcodeTextY, { align: "center" })
 
         // Date
         pdf.setFontSize(5)
@@ -449,40 +429,39 @@ export default function PriceTagPage() {
           </div>
 
           <div className="mb-3">
-            <h3 className="text-sm font-semibold text-slate-700 mb-2">Mahsulot nomi</h3>
+            <h3 className="text-sm font-semibold text-slate-700 mb-2">Mahsulotlar ro&apos;yxati</h3>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nomi</TableHead>
-                  <TableHead className="w-20">Shtrix-kod</TableHead>
-                  <TableHead className="w-24 text-right">Narxi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredProducts.map((product) => {
-                  const isSelected = selectedProducts.some((p) => p.id === product.id)
-                  return (
-                    <TableRow
-                      key={product.id}
-                      className={cn(
-                        "cursor-pointer hover:bg-slate-50",
-                        isSelected && "bg-[#004B34]/5"
+          <div className="flex-1 overflow-y-auto space-y-2">
+            {filteredProducts.map((product) => {
+              const isSelected = selectedProducts.some((p) => p.id === product.id)
+              return (
+                <Card
+                  key={product.id}
+                  className={cn(
+                    "cursor-pointer transition-all hover:shadow-md",
+                    isSelected && "bg-[#004B34]/10 border-[#004B34]"
+                  )}
+                  onClick={() => handleProductSelect(product)}
+                >
+                  <CardContent className="p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="font-semibold text-slate-900">{product.name}</p>
+                        <p className="text-sm text-[#004B34] font-bold mt-1">
+                          {formatCurrency(product.price)} So&apos;m
+                        </p>
+                      </div>
+                      {isSelected && (
+                        <Badge className="bg-[#004B34] text-white ml-2">
+                          Tanlangan
+                        </Badge>
                       )}
-                      onClick={() => handleProductSelect(product)}
-                    >
-                      <TableCell className="font-medium">{product.name}</TableCell>
-                      <TableCell className="text-xs text-slate-500">{product.barcode}</TableCell>
-                      <TableCell className="text-right font-semibold">
-                        {formatCurrency(product.price)}
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
 
           {/* Selected Products Counter */}
@@ -660,14 +639,13 @@ export default function PriceTagPage() {
                                   {product.name}
                                 </div>
 
-                                {/* Barcode */}
-                                <div className="w-full">
+                                {/* Barcode - Improved for scanning */}
+                                <div className="w-full bg-white p-1 rounded">
                                   <canvas
                                     ref={(el) => { canvasRefs.current[product.id] = el }}
                                     className="w-full"
-                                    style={{ height: selectedSize === "30x20" ? "18px" : selectedSize === "40x30" ? "28px" : "35px" }}
+                                    style={{ height: selectedSize === "30x20" ? "24px" : selectedSize === "40x30" ? "38px" : "48px" }}
                                   />
-                                  <div className="text-[6px] text-center text-slate-600 mt-0.5">{product.barcode}</div>
                                 </div>
 
                                 {/* Price */}
@@ -708,12 +686,12 @@ export default function PriceTagPage() {
                                   <div className="text-[6px] text-center text-[#004B34]">So&apos;m</div>
                                 </div>
 
-                                {/* Barcode */}
-                                <div className="w-full bg-white">
+                                {/* Barcode - Improved for scanning */}
+                                <div className="w-full bg-white p-1 rounded">
                                   <canvas
                                     ref={(el) => { canvasRefs.current[product.id] = el }}
                                     className="w-full"
-                                    style={{ height: selectedSize === "30x20" ? "16px" : selectedSize === "40x30" ? "24px" : "30px" }}
+                                    style={{ height: selectedSize === "30x20" ? "22px" : selectedSize === "40x30" ? "34px" : "44px" }}
                                   />
                                 </div>
 
@@ -740,14 +718,13 @@ export default function PriceTagPage() {
                                 {product.name}
                               </div>
 
-                              {/* Barcode */}
-                              <div className="w-full">
+                              {/* Barcode - Improved for scanning */}
+                              <div className="w-full bg-white p-1 rounded shadow-sm">
                                 <canvas
                                   ref={(el) => { canvasRefs.current[product.id] = el }}
                                   className="w-full"
-                                  style={{ height: selectedSize === "30x20" ? "18px" : selectedSize === "40x30" ? "28px" : "35px" }}
+                                  style={{ height: selectedSize === "30x20" ? "24px" : selectedSize === "40x30" ? "38px" : "48px" }}
                                 />
-                                <div className="text-[6px] text-center text-slate-500 mt-0.5">{product.barcode}</div>
                               </div>
 
                               {/* Price */}
@@ -794,14 +771,13 @@ export default function PriceTagPage() {
                                   </div>
                                 </div>
 
-                                {/* Barcode */}
-                                <div className="w-full">
+                                {/* Barcode - Improved for scanning */}
+                                <div className="w-full bg-white p-1.5 rounded border border-slate-200">
                                   <canvas
                                     ref={(el) => { canvasRefs.current[product.id] = el }}
                                     className="w-full"
-                                    style={{ height: selectedSize === "30x20" ? "16px" : selectedSize === "40x30" ? "24px" : "30px" }}
+                                    style={{ height: selectedSize === "30x20" ? "22px" : selectedSize === "40x30" ? "36px" : "46px" }}
                                   />
-                                  <div className="text-[6px] text-center text-slate-500 mt-0.5">{product.barcode}</div>
                                 </div>
 
                                 {/* Date */}
