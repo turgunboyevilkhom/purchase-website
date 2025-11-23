@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  name      String
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Document {
+  id          Int       @id @default(autoincrement())
+  docNumber   String    @unique
+  date        String
+  supplier    String
+  warehouse   String
+  paymentType String
+  totalAmount String
+  status      String
+  itemsCount  Int
+  receiver    String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id            Int      @id @default(autoincrement())
+  barcode       String
+  name          String
+  quantity      Int
+  markup        Float
+  purchasePrice String
+  sellingPrice  String
+  totalPurchase String
+  totalSelling  String
+  productGroup  String
+  expiryDate    String?
+  documentId    Int
+  document      Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+}
+
+model ItemMaster {
+  id           Int      @id @default(autoincrement())
+  barcode      String   @unique
+  name         String
+  productGroup String
+  unit         String
+  minStock     Int      @default(10)
+  description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Supplier {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  phone     String?
+  address   String?
+  debt      Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Warehouse {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  location  String?
+  createdAt DateTime @default(now())
+}
+
+model InventoryStock {
+  id          Int      @id @default(autoincrement())
+  barcode     String
+  name        String
+  productGroup String
+  warehouseId Int
+  quantity    Int
+  purchasePrice String
+  sellingPrice  String
+  expiryDate  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([barcode, warehouseId])
+}
+
+model WriteOff {
+  id          Int      @id @default(autoincrement())
+  productName String
+  barcode     String
+  warehouseId Int
+  quantity    Int
+  reason      String
+  date        String
+  createdAt   DateTime @default(now())
+}
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  type        String   // income or expense
+  description String
+  amount      Float
+  method      String   // cash or bank
+  category    String?
+  supplierId  Int?
+  date        String
+  createdAt   DateTime @default(now())
+}
+
+model Return {
+  id          Int      @id @default(autoincrement())
+  documentId  Int
+  supplierId  Int
+  supplierName String
+  phone       String?
+  reason      String
+  totalAmount Float
+  date        String
+  products    ReturnProduct[]
+  createdAt   DateTime @default(now())
+}
+
+model ReturnProduct {
+  id            Int    @id @default(autoincrement())
+  returnId      Int
+  return        Return @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  barcode       String
+  name          String
+  quantity      Int
+  purchasePrice String
+  total         String
+}
+
+model PriceList {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+}
+
+model ProductPrice {
+  id            Int      @id @default(autoincrement())
+  barcode       String
+  productName   String
+  purchasePrice String
+  salePrice     String
+  priceListId   Int
+  updatedAt     DateTime @updatedAt
+
+  @@unique([barcode, priceListId])
+}
