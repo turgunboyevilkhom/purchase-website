@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronLeft, ChevronRight, Eye, Info } from "lucide-react"
+import { ChevronLeft, ChevronRight, Eye, Info, Plus, Search, Trash2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,11 +18,39 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
-const returns = [
+interface ReturnProduct {
+  id: number
+  name: string
+  quantity: number
+  price: number
+  total: number
+}
+
+interface Return {
+  id: number
+  docNumber: string
+  supplier: string
+  phone: string
+  date: string
+  totalAmount: number
+  reason: string
+  products: ReturnProduct[]
+}
+
+const initialReturns: Return[] = [
   {
     id: 1,
     docNumber: "RET-2025-001",
@@ -32,9 +60,9 @@ const returns = [
     totalAmount: 15000000,
     reason: "Yaroqlilik muddati tugash arafasida",
     products: [
-      { name: "Coca-Cola 1L", quantity: 100, price: 12000, total: 1200000 },
-      { name: "Fanta 0.5L", quantity: 200, price: 8500, total: 1700000 },
-      { name: "Sprite 1.5L", quantity: 150, price: 15000, total: 2250000 },
+      { id: 1, name: "Coca-Cola 1L", quantity: 100, price: 12000, total: 1200000 },
+      { id: 2, name: "Fanta 0.5L", quantity: 200, price: 8500, total: 1700000 },
+      { id: 3, name: "Sprite 1.5L", quantity: 150, price: 15000, total: 2250000 },
     ],
   },
   {
@@ -46,8 +74,8 @@ const returns = [
     totalAmount: 8500000,
     reason: "Shikastlangan mahsulotlar",
     products: [
-      { name: "Elma Sok 1L", quantity: 50, price: 14000, total: 700000 },
-      { name: "Elma Nektar 0.5L", quantity: 80, price: 9000, total: 720000 },
+      { id: 1, name: "Elma Sok 1L", quantity: 50, price: 14000, total: 700000 },
+      { id: 2, name: "Elma Nektar 0.5L", quantity: 80, price: 9000, total: 720000 },
     ],
   },
   {
@@ -59,21 +87,45 @@ const returns = [
     totalAmount: 22000000,
     reason: "Noto'g'ri yetkazib berish",
     products: [
-      { name: "Nestle Shokolad", quantity: 300, price: 25000, total: 7500000 },
-      { name: "Nestle Kofe", quantity: 200, price: 45000, total: 9000000 },
+      { id: 1, name: "Nestle Shokolad", quantity: 300, price: 25000, total: 7500000 },
+      { id: 2, name: "Nestle Kofe", quantity: 200, price: 45000, total: 9000000 },
     ],
   },
 ]
 
+const suppliers = [
+  { id: "coca-cola", name: "Coca-Cola HBC", phone: "+998 90 123 45 67" },
+  { id: "elma", name: "Elma Group", phone: "+998 90 234 56 78" },
+  { id: "nestle", name: "Nestle Uzbekistan", phone: "+998 90 345 67 89" },
+  { id: "pg", name: "P&G Distribution", phone: "+998 90 456 78 90" },
+]
+
+const returnReasons = [
+  "Yaroqlilik muddati tugash arafasida",
+  "Shikastlangan mahsulotlar",
+  "Noto'g'ri yetkazib berish",
+  "Sifat muammolari",
+  "Ortiqcha buyurtma",
+  "Boshqa",
+]
+
 export default function ReturnsPage() {
+  const [returns, setReturns] = useState<Return[]>(initialReturns)
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
   const [showDetailDialog, setShowDetailDialog] = useState(false)
-  const [selectedReturn, setSelectedReturn] = useState<
-    (typeof returns)[0] | null
-  >(null)
+  const [selectedReturn, setSelectedReturn] = useState<Return | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
+
+  // Add new return state
+  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [newSupplier, setNewSupplier] = useState("")
+  const [newReason, setNewReason] = useState("")
+  const [newDate, setNewDate] = useState(new Date().toISOString().split("T")[0])
+  const [newProducts, setNewProducts] = useState<ReturnProduct[]>([
+    { id: 1, name: "", quantity: 0, price: 0, total: 0 },
+  ])
 
   const totalPages = Math.ceil(returns.length / itemsPerPage)
   const paginatedReturns = returns.slice(
@@ -87,17 +139,79 @@ export default function ReturnsPage() {
     return new Intl.NumberFormat("uz-UZ").format(amount)
   }
 
-  const handleViewDetail = (ret: (typeof returns)[0]) => {
+  const handleViewDetail = (ret: Return) => {
     setSelectedReturn(ret)
     setShowDetailDialog(true)
   }
+
+  const addProductRow = () => {
+    setNewProducts([
+      ...newProducts,
+      { id: newProducts.length + 1, name: "", quantity: 0, price: 0, total: 0 },
+    ])
+  }
+
+  const removeProductRow = (id: number) => {
+    if (newProducts.length > 1) {
+      setNewProducts(newProducts.filter((p) => p.id !== id))
+    }
+  }
+
+  const updateNewProduct = (id: number, field: keyof ReturnProduct, value: string | number) => {
+    setNewProducts(
+      newProducts.map((p) => {
+        if (p.id !== id) return p
+        const updated = { ...p, [field]: value }
+        if (field === "quantity" || field === "price") {
+          updated.total = updated.quantity * updated.price
+        }
+        return updated
+      })
+    )
+  }
+
+  const handleAddReturn = () => {
+    if (newSupplier && newReason && newProducts.some(p => p.name && p.quantity > 0)) {
+      const supplier = suppliers.find(s => s.id === newSupplier)
+      const newTotalAmount = newProducts.reduce((sum, p) => sum + p.total, 0)
+      const newReturn: Return = {
+        id: returns.length + 1,
+        docNumber: `RET-${new Date().getFullYear()}-${String(returns.length + 1).padStart(3, "0")}`,
+        supplier: supplier?.name || "",
+        phone: supplier?.phone || "",
+        date: newDate,
+        totalAmount: newTotalAmount,
+        reason: newReason,
+        products: newProducts.filter(p => p.name && p.quantity > 0),
+      }
+      setReturns([newReturn, ...returns])
+      resetAddForm()
+      setShowAddDialog(false)
+    }
+  }
+
+  const resetAddForm = () => {
+    setNewSupplier("")
+    setNewReason("")
+    setNewDate(new Date().toISOString().split("T")[0])
+    setNewProducts([{ id: 1, name: "", quantity: 0, price: 0, total: 0 }])
+  }
+
+  const newTotalAmount = newProducts.reduce((sum, p) => sum + p.total, 0)
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Qaytarilgan mahsulotlar</CardTitle>
+          <Button
+            className="gap-2 bg-gradient-to-r from-[#004B34] to-[#006644]"
+            onClick={() => setShowAddDialog(true)}
+          >
+            <Plus className="h-4 w-4" />
+            Yangi qaytarish
+          </Button>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
@@ -194,6 +308,160 @@ export default function ReturnsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Add Return Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Yangi qaytarish qo&apos;shish</DialogTitle>
+            <DialogDescription>
+              Qaytarilayotgan mahsulotlar ma&apos;lumotlarini kiriting
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Form Fields */}
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div>
+                <Label className="mb-2 block">Ta&apos;minotchi <span className="text-red-500">*</span></Label>
+                <Select value={newSupplier} onValueChange={setNewSupplier}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Tanlang..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {suppliers.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="mb-2 block">Sana <span className="text-red-500">*</span></Label>
+                <Input
+                  type="date"
+                  value={newDate}
+                  onChange={(e) => setNewDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label className="mb-2 block">Sabab <span className="text-red-500">*</span></Label>
+                <Select value={newReason} onValueChange={setNewReason}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Tanlang..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {returnReasons.map((reason) => (
+                      <SelectItem key={reason} value={reason}>
+                        {reason}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Products */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <Label className="font-semibold">Mahsulotlar</Label>
+                <Button variant="outline" size="sm" onClick={addProductRow}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Qator qo&apos;shish
+                </Button>
+              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Mahsulot nomi</TableHead>
+                    <TableHead className="w-[100px]">Miqdor</TableHead>
+                    <TableHead className="w-[120px]">Narx</TableHead>
+                    <TableHead className="w-[120px]">Jami</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {newProducts.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell>
+                        <div className="relative">
+                          <Input
+                            value={product.name}
+                            onChange={(e) =>
+                              updateNewProduct(product.id, "name", e.target.value)
+                            }
+                            placeholder="Mahsulot nomi"
+                            className="pr-8"
+                          />
+                          <Search className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          type="number"
+                          value={product.quantity || ""}
+                          onChange={(e) =>
+                            updateNewProduct(product.id, "quantity", Number(e.target.value))
+                          }
+                          min={0}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          type="number"
+                          value={product.price || ""}
+                          onChange={(e) =>
+                            updateNewProduct(product.id, "price", Number(e.target.value))
+                          }
+                          min={0}
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {formatCurrency(product.total)}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-red-500 hover:text-red-600"
+                          onClick={() => removeProductRow(product.id)}
+                          disabled={newProducts.length === 1}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="mt-4 text-right">
+                <span className="text-slate-500">Jami summa: </span>
+                <span className="text-lg font-bold">{formatCurrency(newTotalAmount)} so&apos;m</span>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                resetAddForm()
+                setShowAddDialog(false)
+              }}
+            >
+              Bekor qilish
+            </Button>
+            <Button
+              onClick={handleAddReturn}
+              disabled={!newSupplier || !newReason || !newProducts.some(p => p.name && p.quantity > 0)}
+              className="bg-gradient-to-r from-[#004B34] to-[#006644]"
+            >
+              Saqlash
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Detail Dialog */}
       <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
