@@ -11,6 +11,9 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  Wallet,
+  ArrowUpRight,
+  ArrowDownRight,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -182,51 +185,82 @@ export default function CashRegisterPage() {
       )}
 
       {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
+      <div className="grid gap-4 sm:grid-cols-4">
+        <Card className="border-l-4 border-l-green-500">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                <TrendingUp className="h-6 w-6 text-green-600" />
-              </div>
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-500">Jami kirim</p>
+                <p className="text-sm font-medium text-slate-500">Jami kirim</p>
                 <p className="text-2xl font-bold text-green-600">
                   {formatCurrency(totalIncome)}
                 </p>
-                <p className="text-xs text-green-600">+12.5% o&apos;tgan haftadan</p>
+                <p className="text-xs text-slate-500 mt-1">so&apos;m</p>
+                <div className="flex items-center gap-1 mt-2">
+                  <ArrowUpRight className="h-3 w-3 text-green-600" />
+                  <span className="text-xs text-green-600">+12.5%</span>
+                </div>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
+                <TrendingUp className="h-7 w-7 text-green-600" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-l-4 border-l-red-500">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-red-100">
-                <TrendingDown className="h-6 w-6 text-red-600" />
-              </div>
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-500">Jami chiqim</p>
+                <p className="text-sm font-medium text-slate-500">Jami chiqim</p>
                 <p className="text-2xl font-bold text-red-600">
                   {formatCurrency(totalExpense)}
                 </p>
-                <p className="text-xs text-red-600">+8.2% o&apos;tgan haftadan</p>
+                <p className="text-xs text-slate-500 mt-1">so&apos;m</p>
+                <div className="flex items-center gap-1 mt-2">
+                  <ArrowDownRight className="h-3 w-3 text-red-600" />
+                  <span className="text-xs text-red-600">+8.2%</span>
+                </div>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                <TrendingDown className="h-7 w-7 text-red-600" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-l-4 border-l-blue-500">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-                <CreditCard className="h-6 w-6 text-blue-600" />
-              </div>
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-500">Balans</p>
+                <p className="text-sm font-medium text-slate-500">Balans</p>
                 <p className="text-2xl font-bold text-blue-600">
                   {formatCurrency(balance)}
                 </p>
-                <p className="text-xs text-blue-600">+4.3% o&apos;tgan haftadan</p>
+                <p className="text-xs text-slate-500 mt-1">so&apos;m</p>
+                <div className="flex items-center gap-1 mt-2">
+                  <ArrowUpRight className="h-3 w-3 text-blue-600" />
+                  <span className="text-xs text-blue-600">+4.3%</span>
+                </div>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
+                <Wallet className="h-7 w-7 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-purple-500">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">Tranzaksiyalar</p>
+                <p className="text-2xl font-bold text-purple-600">
+                  {transactions.length}
+                </p>
+                <p className="text-xs text-slate-500 mt-1">ta</p>
+                <div className="flex items-center gap-1 mt-2">
+                  <span className="text-xs text-slate-500">Bugun</span>
+                </div>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-purple-100">
+                <CreditCard className="h-7 w-7 text-purple-600" />
               </div>
             </div>
           </CardContent>
@@ -263,56 +297,72 @@ export default function CashRegisterPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {paginatedTransactions.map((transaction) => (
-              <div
-                key={transaction.id}
-                className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-slate-50"
-              >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                      transaction.type === "income"
-                        ? "bg-green-100"
-                        : "bg-red-100"
-                    }`}
-                  >
-                    {transaction.type === "income" ? (
-                      <TrendingUp className="h-5 w-5 text-green-600" />
-                    ) : (
-                      <TrendingDown className="h-5 w-5 text-red-600" />
-                    )}
+          {filteredTransactions.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Wallet className="h-16 w-16 text-slate-300" />
+              <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                Tranzaksiya topilmadi
+              </h3>
+              <p className="mt-2 text-sm text-slate-500">
+                Tanlangan filtrlar bo&apos;yicha tranzaksiya yo&apos;q
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {paginatedTransactions.map((transaction) => (
+                <div
+                  key={transaction.id}
+                  className="flex items-center justify-between rounded-lg border p-4 transition-all hover:shadow-md hover:border-slate-300"
+                >
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                        transaction.type === "income"
+                          ? "bg-green-100"
+                          : "bg-red-100"
+                      }`}
+                    >
+                      {transaction.type === "income" ? (
+                        <ArrowUpRight className="h-6 w-6 text-green-600" />
+                      ) : (
+                        <ArrowDownRight className="h-6 w-6 text-red-600" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-900">{transaction.description}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-sm text-slate-500">{transaction.date}</p>
+                        <span className="text-slate-300">•</span>
+                        <Badge
+                          variant="outline"
+                          className={
+                            transaction.method === "Naqd"
+                              ? "border-blue-500 text-blue-600 bg-blue-50"
+                              : "border-purple-500 text-purple-600 bg-purple-50"
+                          }
+                        >
+                          {transaction.method}
+                        </Badge>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">{transaction.description}</p>
-                    <p className="text-sm text-slate-500">{transaction.date}</p>
+                  <div className="text-right">
+                    <p
+                      className={`text-xl font-bold ${
+                        transaction.type === "income"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {transaction.type === "income" ? "+" : "-"}
+                      {formatCurrency(transaction.amount)}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">so&apos;m</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <Badge
-                    variant="outline"
-                    className={
-                      transaction.method === "Naqd"
-                        ? "border-blue-500 text-blue-500"
-                        : "border-purple-500 text-purple-500"
-                    }
-                  >
-                    {transaction.method}
-                  </Badge>
-                  <p
-                    className={`text-lg font-semibold ${
-                      transaction.type === "income"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {transaction.type === "income" ? "+" : "-"}
-                    {formatCurrency(transaction.amount)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 && (

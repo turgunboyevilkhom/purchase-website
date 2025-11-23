@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronLeft, ChevronRight, Eye, Info, Plus, Search, Trash2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Eye, Info, Plus, Search, Trash2, Download, PackageX, TrendingDown, AlertCircle } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
 import {
   Table,
   TableBody,
@@ -202,9 +203,20 @@ export default function ReturnsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Qaytarilgan mahsulotlar</CardTitle>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Qaytarilgan mahsulotlar</h1>
+          <p className="text-sm text-slate-500">Barcha qaytarilgan mahsulotlar ro&apos;yxati</p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => alert("Eksport funksiyasi")}
+          >
+            <Download className="h-4 w-4" />
+            Eksport
+          </Button>
           <Button
             className="gap-2 bg-gradient-to-r from-[#004B34] to-[#006644]"
             onClick={() => setShowAddDialog(true)}
@@ -212,8 +224,58 @@ export default function ReturnsPage() {
             <Plus className="h-4 w-4" />
             Yangi qaytarish
           </Button>
-        </CardHeader>
-        <CardContent>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-red-100">
+                <PackageX className="h-6 w-6 text-red-600" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Jami qaytarishlar</p>
+                <p className="text-2xl font-bold">{returns.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
+                <TrendingDown className="h-6 w-6 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Jami summa</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {formatCurrency(totalAmount)}
+                </p>
+                <p className="text-xs text-slate-500">so&apos;m</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+                <AlertCircle className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Eng ko&apos;p sabab</p>
+                <p className="text-lg font-semibold">Yaroqlilik muddati</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters */}
+      <Card>
+        <CardContent className="pt-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             <div className="flex-1">
               <Label className="mb-2 block">Boshlang&apos;ich sana</Label>
@@ -231,81 +293,140 @@ export default function ReturnsPage() {
                 onChange={(e) => setEndDate(e.target.value)}
               />
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Oldingi
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
-                disabled={currentPage === totalPages}
-              >
-                Keyingi
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+            <Button variant="outline" className="gap-2">
+              <Search className="h-4 w-4" />
+              Qidirish
+            </Button>
           </div>
         </CardContent>
       </Card>
 
       {/* Table */}
       <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Qaytarishlar ro&apos;yxati</CardTitle>
+            {returns.length > 0 && (
+              <Badge variant="outline" className="text-sm">
+                Jami: {returns.length} ta
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Xarid raqami</TableHead>
-                <TableHead>Taminotchi</TableHead>
-                <TableHead>Telefon</TableHead>
-                <TableHead>Sana</TableHead>
-                <TableHead className="text-right">Summa</TableHead>
-                <TableHead className="text-right">Amallar</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedReturns.map((ret) => (
-                <TableRow key={ret.id}>
-                  <TableCell className="font-medium">{ret.docNumber}</TableCell>
-                  <TableCell>{ret.supplier}</TableCell>
-                  <TableCell>{ret.phone}</TableCell>
-                  <TableCell>{ret.date}</TableCell>
-                  <TableCell className="text-right font-medium">
-                    {formatCurrency(ret.totalAmount)} so&apos;m
-                  </TableCell>
-                  <TableCell className="text-right">
+          {returns.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <PackageX className="h-16 w-16 text-slate-300" />
+              <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                Qaytarish topilmadi
+              </h3>
+              <p className="mt-2 text-sm text-slate-500">
+                Hozircha qaytarilgan mahsulotlar yo&apos;q
+              </p>
+              <Button
+                className="mt-4 gap-2 bg-gradient-to-r from-[#004B34] to-[#006644]"
+                onClick={() => setShowAddDialog(true)}
+              >
+                <Plus className="h-4 w-4" />
+                Birinchi qaytarishni qo&apos;shish
+              </Button>
+            </div>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Xarid raqami</TableHead>
+                    <TableHead>Taminotchi</TableHead>
+                    <TableHead>Telefon</TableHead>
+                    <TableHead>Sana</TableHead>
+                    <TableHead>Sabab</TableHead>
+                    <TableHead className="text-right">Summa</TableHead>
+                    <TableHead className="text-right">Amallar</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedReturns.map((ret) => (
+                    <TableRow key={ret.id} className="hover:bg-slate-50">
+                      <TableCell className="font-medium">{ret.docNumber}</TableCell>
+                      <TableCell>{ret.supplier}</TableCell>
+                      <TableCell className="text-slate-600">{ret.phone}</TableCell>
+                      <TableCell>{ret.date}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-orange-50 border-orange-200 text-orange-700">
+                          {ret.reason.length > 30 ? ret.reason.substring(0, 30) + "..." : ret.reason}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right font-medium text-red-600">
+                        {formatCurrency(ret.totalAmount)} so&apos;m
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewDetail(ret)}
+                          className="gap-2"
+                        >
+                          <Eye className="h-4 w-4" />
+                          Batafsil
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+                <TableFooter>
+                  <TableRow>
+                    <TableCell colSpan={5} className="font-semibold">
+                      Jami:
+                    </TableCell>
+                    <TableCell className="text-right font-semibold text-red-600">
+                      {formatCurrency(totalAmount)} so&apos;m
+                    </TableCell>
+                    <TableCell></TableCell>
+                  </TableRow>
+                </TableFooter>
+              </Table>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between border-t px-6 py-4">
+                  <p className="text-sm text-slate-500">
+                    {(currentPage - 1) * itemsPerPage + 1}-
+                    {Math.min(currentPage * itemsPerPage, returns.length)} dan {returns.length} ta
+                  </p>
+                  <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleViewDetail(ret)}
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="gap-2"
                     >
-                      <Eye className="mr-2 h-4 w-4" />
-                      Batafsil
+                      <ChevronLeft className="h-4 w-4" />
+                      Oldingi
                     </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TableCell colSpan={4} className="font-semibold">
-                  Jami:
-                </TableCell>
-                <TableCell className="text-right font-semibold">
-                  {formatCurrency(totalAmount)} so&apos;m
-                </TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium text-slate-700">
+                        {currentPage} / {totalPages}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={currentPage === totalPages}
+                      className="gap-2"
+                    >
+                      Keyingi
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
 

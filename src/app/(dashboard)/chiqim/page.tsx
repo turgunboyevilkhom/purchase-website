@@ -7,11 +7,16 @@ import {
   ChevronLeft,
   ChevronRight,
   Trash2,
+  Download,
+  AlertTriangle,
+  PackageX,
+  Calendar,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
 import {
   Table,
   TableBody,
@@ -100,6 +105,8 @@ export default function WriteOffsPage() {
 
   const totalQuantity = writeOffs.reduce((sum, item) => sum + item.quantity, 0)
 
+  const uniqueReasons = Array.from(new Set(writeOffs.map(w => w.reason)))
+
   return (
     <div className="space-y-6">
       {/* Header Card */}
@@ -114,16 +121,83 @@ export default function WriteOffsPage() {
                 Yaroqsiz mahsulotlarni hisobdan chiqaring
               </p>
             </div>
-            <Button
-              className="gap-2 bg-white text-red-600 hover:bg-red-50"
-              onClick={() => setShowAddDialog(true)}
-            >
-              <Plus className="h-4 w-4" />
-              Yangi hisobdan chiqarish
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="gap-2 bg-white/10 text-white border-white/20 hover:bg-white/20"
+                onClick={() => alert("Eksport funksiyasi")}
+              >
+                <Download className="h-4 w-4" />
+                Eksport
+              </Button>
+              <Button
+                className="gap-2 bg-white text-red-600 hover:bg-red-50"
+                onClick={() => setShowAddDialog(true)}
+              >
+                <Plus className="h-4 w-4" />
+                Yangi hisobdan chiqarish
+              </Button>
+            </div>
           </div>
         </div>
       </Card>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 sm:grid-cols-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-red-100">
+                <Trash2 className="h-6 w-6 text-red-600" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Jami holat</p>
+                <p className="text-2xl font-bold">{writeOffs.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
+                <PackageX className="h-6 w-6 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Jami miqdor</p>
+                <p className="text-2xl font-bold">{totalQuantity}</p>
+                <p className="text-xs text-slate-500">dona</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+                <AlertTriangle className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Sabablar</p>
+                <p className="text-2xl font-bold">{uniqueReasons.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
+                <Calendar className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Oxirgi chiqarish</p>
+                <p className="text-lg font-semibold">{writeOffs[0]?.date || "-"}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Date Filters */}
       <Card>
@@ -163,75 +237,130 @@ export default function WriteOffsPage() {
 
       {/* Table */}
       <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Hisobdan chiqarishlar ro&apos;yxati</CardTitle>
+            {filteredWriteOffs.length > 0 && (
+              <Badge variant="outline" className="text-sm">
+                Jami: {filteredWriteOffs.length} ta
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Ombor</TableHead>
-                <TableHead>Mahsulot</TableHead>
-                <TableHead className="text-center">Miqdori</TableHead>
-                <TableHead>Sabab</TableHead>
-                <TableHead>Sana</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedWriteOffs.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.id}</TableCell>
-                  <TableCell>{item.warehouse}</TableCell>
-                  <TableCell>{item.product}</TableCell>
-                  <TableCell className="text-center">{item.quantity}</TableCell>
-                  <TableCell>{item.reason}</TableCell>
-                  <TableCell>{item.date}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TableCell colSpan={3} className="font-semibold">
-                  Jami:
-                </TableCell>
-                <TableCell className="text-center font-semibold">
-                  {totalQuantity}
-                </TableCell>
-                <TableCell colSpan={2}></TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
+          {filteredWriteOffs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <PackageX className="h-16 w-16 text-slate-300" />
+              <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                Hech narsa topilmadi
+              </h3>
+              <p className="mt-2 text-sm text-slate-500">
+                Qidiruv natijasida hech narsa topilmadi
+              </p>
+            </div>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Ombor</TableHead>
+                    <TableHead>Mahsulot</TableHead>
+                    <TableHead className="text-center">Miqdori</TableHead>
+                    <TableHead>Sabab</TableHead>
+                    <TableHead>Sana</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedWriteOffs.map((item) => (
+                    <TableRow key={item.id} className="hover:bg-slate-50">
+                      <TableCell className="font-medium">#{item.id}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-700">
+                          {item.warehouse}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-medium">{item.product}</TableCell>
+                      <TableCell className="text-center">
+                        <span className="inline-flex items-center justify-center rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-700">
+                          {item.quantity}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={
+                            item.reason.includes("Yaroqlilik")
+                              ? "bg-orange-50 border-orange-200 text-orange-700"
+                              : item.reason.includes("Shikastlangan")
+                                ? "bg-red-50 border-red-200 text-red-700"
+                                : "bg-slate-50 border-slate-200 text-slate-700"
+                          }
+                        >
+                          {item.reason}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-slate-600">{item.date}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+                <TableFooter>
+                  <TableRow>
+                    <TableCell colSpan={3} className="font-semibold">
+                      Jami:
+                    </TableCell>
+                    <TableCell className="text-center font-semibold">
+                      <span className="inline-flex items-center justify-center rounded-full bg-red-100 px-3 py-1 text-sm font-bold text-red-700">
+                        {totalQuantity}
+                      </span>
+                    </TableCell>
+                    <TableCell colSpan={2}></TableCell>
+                  </TableRow>
+                </TableFooter>
+              </Table>
+
+              {/* Improved Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between border-t px-6 py-4">
+                  <p className="text-sm text-slate-500">
+                    {(currentPage - 1) * itemsPerPage + 1}-
+                    {Math.min(currentPage * itemsPerPage, filteredWriteOffs.length)} dan {filteredWriteOffs.length} ta
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="gap-2"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Oldingi
+                    </Button>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium text-slate-700">
+                        {currentPage} / {totalPages}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={currentPage === totalPages}
+                      className="gap-2"
+                    >
+                      Keyingi
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-slate-500">
-            Sahifa {currentPage} / {totalPages}
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Oldingi
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                setCurrentPage((p) => Math.min(totalPages, p + 1))
-              }
-              disabled={currentPage === totalPages}
-            >
-              Keyingi
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* Add Write-off Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>

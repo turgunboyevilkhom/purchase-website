@@ -9,6 +9,9 @@ import {
   BarChart3,
   ChevronLeft,
   ChevronRight,
+  Download,
+  PackageX,
+  TrendingUp,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -178,7 +181,7 @@ export default function WarehousePage() {
             Barcha mahsulotlar inventarizatsiyasi
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <Select value={warehouseFilter} onValueChange={setWarehouseFilter}>
             <SelectTrigger className="w-[160px]">
               <SelectValue placeholder="Ombor" />
@@ -201,53 +204,63 @@ export default function WarehousePage() {
               <SelectItem value="Maishiy kimyo">Maishiy kimyo</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="icon">
+          <Button variant="outline" className="gap-2" onClick={() => alert("Hisobot funksiyasi")}>
             <BarChart3 className="h-4 w-4" />
+            Hisobot
+          </Button>
+          <Button variant="outline" className="gap-2" onClick={() => alert("Eksport funksiyasi")}>
+            <Download className="h-4 w-4" />
+            Eksport
           </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
+        <Card className="border-l-4 border-l-blue-500">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-                <Package className="h-6 w-6 text-blue-600" />
-              </div>
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-500">Jami mahsulotlar</p>
-                <p className="text-2xl font-bold">{totalProducts}</p>
+                <p className="text-sm font-medium text-slate-500">Jami mahsulotlar</p>
+                <p className="text-3xl font-bold text-blue-600">{totalProducts}</p>
+                <p className="text-xs text-slate-500 mt-1">turda</p>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
+                <Package className="h-7 w-7 text-blue-600" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-l-4 border-l-green-500">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                <DollarSign className="h-6 w-6 text-green-600" />
-              </div>
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-500">Umumiy qiymat</p>
-                <p className="text-2xl font-bold">
-                  {formatCurrency(totalValue)} <span className="text-sm font-normal">so&apos;m</span>
+                <p className="text-sm font-medium text-slate-500">Umumiy qiymat</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {formatCurrency(totalValue)}
                 </p>
-                <p className="text-xs text-green-600">+8.2% o&apos;tgan oydan</p>
+                <p className="text-xs text-slate-500 mt-1">so&apos;m</p>
+                <div className="flex items-center gap-1 mt-1">
+                  <TrendingUp className="h-3 w-3 text-green-600" />
+                  <span className="text-xs text-green-600">+8.2%</span>
+                </div>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
+                <DollarSign className="h-7 w-7 text-green-600" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-l-4 border-l-red-500">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-red-100">
-                <AlertTriangle className="h-6 w-6 text-red-600" />
-              </div>
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-500">Kam qolgan mahsulotlar</p>
-                <p className="text-2xl font-bold">{lowStockItems}</p>
-                <p className="text-xs text-red-600">Zudlik bilan to&apos;ldiring</p>
+                <p className="text-sm font-medium text-slate-500">Kam qolgan</p>
+                <p className="text-3xl font-bold text-red-600">{lowStockItems}</p>
+                <p className="text-xs text-red-600 mt-1">Zudlik bilan to&apos;ldiring</p>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                <AlertTriangle className="h-7 w-7 text-red-600" />
               </div>
             </div>
           </CardContent>
@@ -271,64 +284,88 @@ export default function WarehousePage() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Mahsulot</TableHead>
-                <TableHead>Kategoriya</TableHead>
-                <TableHead>Shtrix-kod</TableHead>
-                <TableHead>Miqdori</TableHead>
-                <TableHead className="text-right">Narxi</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedItems.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100">
-                        <Package className="h-5 w-5 text-slate-400" />
-                      </div>
-                      <span className="font-medium">{item.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{item.category}</TableCell>
-                  <TableCell className="font-mono text-sm">
-                    {item.barcode}
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-sm">
-                        <span>{item.quantity} dona</span>
-                        <span className="text-slate-400">
-                          /{item.maxStock}
-                        </span>
-                      </div>
-                      <Progress
-                        value={getStockPercentage(item.quantity, item.maxStock)}
-                        className={`h-2 ${
-                          item.quantity < item.minStock
-                            ? "[&>div]:bg-red-500"
-                            : item.quantity < item.minStock * 1.5
-                              ? "[&>div]:bg-amber-500"
-                              : "[&>div]:bg-green-500"
-                        }`}
-                      />
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {formatCurrency(item.price)} so&apos;m
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={statusColors[item.status]}>
-                      {item.status}
-                    </Badge>
-                  </TableCell>
+          {filteredItems.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <PackageX className="h-16 w-16 text-slate-300" />
+              <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                Mahsulot topilmadi
+              </h3>
+              <p className="mt-2 text-sm text-slate-500">
+                Qidiruv yoki filtr bo&apos;yicha mahsulot topilmadi
+              </p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Mahsulot</TableHead>
+                  <TableHead>Kategoriya</TableHead>
+                  <TableHead>Shtrix-kod</TableHead>
+                  <TableHead>Miqdori</TableHead>
+                  <TableHead className="text-right">Narxi</TableHead>
+                  <TableHead>Status</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {paginatedItems.map((item) => (
+                  <TableRow key={item.id} className="hover:bg-slate-50">
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
+                          <Package className="h-6 w-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-slate-900">{item.name}</p>
+                          <p className="text-xs text-slate-500">ID: {item.id}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-700">
+                        {item.category}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-mono text-sm text-slate-600">
+                      {item.barcode}
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-2 min-w-[140px]">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-semibold">{item.quantity}</span>
+                          <span className="text-slate-400">
+                            / {item.maxStock} dona
+                          </span>
+                        </div>
+                        <Progress
+                          value={getStockPercentage(item.quantity, item.maxStock)}
+                          className={`h-2 ${
+                            item.quantity < item.minStock
+                              ? "[&>div]:bg-red-500"
+                              : item.quantity < item.minStock * 1.5
+                                ? "[&>div]:bg-amber-500"
+                                : "[&>div]:bg-green-500"
+                          }`}
+                        />
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <p className="font-semibold text-slate-900">
+                        {formatCurrency(item.price)}
+                      </p>
+                      <p className="text-xs text-slate-500">so&apos;m</p>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        className={`${statusColors[item.status]} text-white`}
+                      >
+                        {item.status}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 && (
