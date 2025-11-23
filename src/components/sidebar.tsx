@@ -18,6 +18,7 @@ import {
   Receipt,
   Users,
   CreditCard,
+  Tag,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -79,6 +80,12 @@ const menuItems = [
     label: "Narxlarni yangilash",
     icon: DollarSign,
     href: "/narxlarni-yangilash",
+  },
+  {
+    id: "narx-yorligi",
+    label: "Narx yorlig'i",
+    icon: Tag,
+    href: "/narx-yorligi",
   },
 ]
 
